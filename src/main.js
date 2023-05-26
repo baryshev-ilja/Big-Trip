@@ -1,4 +1,5 @@
 import ContentPresenter from './presenter/content-presenter.js';
+import {createWaypointTemplate} from './mock/waypoint-mock.js';
 
 const siteMainElement = document.querySelector('.page-body');
 const siteHeaderMenuElement = siteMainElement.querySelector('.trip-main');
@@ -14,3 +15,6 @@ const contentPresenter = new ContentPresenter({
 });
 
 contentPresenter.init();
+
+console.log(createWaypointTemplate());
+console.log(createWaypointTemplate());
