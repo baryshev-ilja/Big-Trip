@@ -109,12 +109,7 @@ const offersByType = {
       'price': 500,
     },
   ],
-  [Types.RESTAURANT]: [
-    {
-      'title': 'all inclusive',
-      'price': 750,
-    },
-  ],
+  [Types.RESTAURANT]: [],
 };
 
 export {offersByType};

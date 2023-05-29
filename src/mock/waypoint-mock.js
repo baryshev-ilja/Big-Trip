@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {createDestinationTemplate} from './destinations-mock.js';
 import {offersByType} from './offers-mock.js';
 import {Types, CITIES} from '../const.js';
@@ -26,18 +25,17 @@ function createRandomWaypoint() {
     }
   }
 
-  let dateFrom = generateDateFrom(7);
+  const dateFrom = generateDateFrom(7);
   const dateTo = generateDateTo(dateFrom);
-  dateFrom = dayjs(dateFrom).format('DD/MM/YYYY HH:MM');
 
   return {
-    'base_price': getRandomPositiveInteger(100, 467),
-    'date_from': dateFrom,
-    'date_to': dateTo,
-    'destination': createDestinationTemplate(city),
-    'isFavorite': Boolean(getRandomPositiveInteger(0, 1)),
-    'offers': offersByType[typeInfo[1]],
-    'type': Types[typeInfo[0]],
+    basePrice: getRandomPositiveInteger(100, 467),
+    dateFrom: dateFrom,
+    dateTo: dateTo,
+    destination: createDestinationTemplate(city),
+    isFavorite: Boolean(getRandomPositiveInteger(0, 1)),
+    offers: offersByType[typeInfo[1]],
+    type: Types[typeInfo[0]],
   };
 }
 

@@ -35,7 +35,7 @@ export default class ContentPresenter {
     render(new EditFormView(), this.tripEventsListComponent.element);
 
     for(let i = 0; i < this.points.length; i++) {
-      render(new WaypointView(point: this.points[i]), this.tripEventsListComponent.element);
+      render(new WaypointView({point: this.points[i]}), this.tripEventsListComponent.element);
     }
   }
 }

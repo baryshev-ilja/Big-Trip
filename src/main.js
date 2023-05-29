@@ -1,5 +1,4 @@
 import ContentPresenter from './presenter/content-presenter.js';
-import {createWaypointTemplate} from './mock/waypoint-mock.js';
 import PointsModel from './model/points-model.js';
 
 const siteMainElement = document.querySelector('.page-body');
@@ -18,6 +17,3 @@ const contentPresenter = new ContentPresenter({
 });
 
 contentPresenter.init();
-
-console.log(createWaypointTemplate());
-console.log(createWaypointTemplate());
