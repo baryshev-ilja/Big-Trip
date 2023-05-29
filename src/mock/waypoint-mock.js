@@ -10,7 +10,7 @@ const arrayUniqOfCities = new Set();
 // Массив из пар [ключ - значение], созданный из объекта, где прописаны типы точки маршрута
 const arrayTypesOfWaypoints = Object.entries(Types);
 
-function createWaypointTemplate() {
+function createRandomWaypoint() {
   const typeInfo = getRandomArrayElement(arrayTypesOfWaypoints);
   let city;
 
@@ -41,4 +41,4 @@ function createWaypointTemplate() {
   };
 }
 
-export {createWaypointTemplate};
+export {createRandomWaypoint};
