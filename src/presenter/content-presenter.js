@@ -13,14 +13,17 @@ export default class ContentPresenter {
   routeWrapperComponent = new RouteWrapperView();
   tripEventsListComponent = new TripEventsListView();
 
-  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer}) {
+  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel}) {
     this.tripEventsContainer = tripEventsContainer;
     this.routeContainer = routeContainer;
     this.menuContainer = menuContainer;
     this.filtersContainer = filtersContainer;
+    this.pointsModel = pointsModel;
   }
 
   init() {
+    this.points = [...this.pointsModel.getPoints()];
+
     render(this.routeWrapperComponent, this.routeContainer, RenderPosition.AFTERBEGIN);
     render(new RouteInfoView(), this.routeWrapperComponent.element);
     render(new RouteCostView(), this.routeWrapperComponent.element);
@@ -31,8 +34,8 @@ export default class ContentPresenter {
     render(this.tripEventsListComponent, this.tripEventsContainer);
     render(new EditFormView(), this.tripEventsListComponent.element);
 
-    for(let i = 0; i < 3; i++) {
-      render(new WaypointView(), this.tripEventsListComponent.element);
+    for(let i = 0; i < this.points.length; i++) {
+      render(new WaypointView(point: this.points[i]), this.tripEventsListComponent.element);
     }
   }
 }
