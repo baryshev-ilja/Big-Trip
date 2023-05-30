@@ -6,9 +6,12 @@ import {getRandomPositiveInteger, getRandomArrayElement, generateDateFrom, gener
 // Коллекция уникальных городов
 const arrayUniqOfCities = new Set();
 
+
 // Массив из пар [ключ - значение], созданный из объекта, где прописаны типы точки маршрута
 const arrayTypesOfWaypoints = Object.entries(Types);
 
+
+// Функция, которая генерирует объект со случайными данными для точки маршрута
 function createRandomWaypoint() {
   const typeInfo = getRandomArrayElement(arrayTypesOfWaypoints);
   let city;
@@ -36,6 +39,8 @@ function createRandomWaypoint() {
     isFavorite: Boolean(getRandomPositiveInteger(0, 1)),
     offers: offersByType[typeInfo[1]],
     type: Types[typeInfo[0]],
+    city,
+    cities: CITIES,
   };
 }
 

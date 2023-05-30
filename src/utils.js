@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 const DATE_FORMAT = 'MMM D';
 const TIME_FORMAT = 'HH:MM';
-const EDIT_DATE_FORMAT = 'DD/MM/YYYY';
+const EDIT_DATE_FORMAT = 'DD/MM/YY';
 
 // Функция, которая возвращает случайный элемент из переданного массива
 const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
@@ -109,7 +109,6 @@ function differentDate(dateFrom, dateTo) {
     return `${getNumberOfMinutes(date1Minute, date2Minute)}M`;
   }
 }
-
 
 export {
   getRandomArrayElement,
