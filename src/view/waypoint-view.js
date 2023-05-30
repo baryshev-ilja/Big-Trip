@@ -11,20 +11,23 @@ function createWaypointTemplate(point) {
     ? 'event__favorite-btn event__favorite-btn--active'
     : 'event__favorite-btn';
 
-  // Показывает предложения, если они есть для точки маршрута
-  const showOffers = () => {
-    let offerArray = '';
 
-    offers.forEach((item) => {
-      offerArray += `
-         <li class="event__offer">
-            <span class="event__offer-title">${item.title}</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">${item.price}</span>
-         </li>`;
-    });
-    return offerArray;
+  // Записывает в одну строчку все выбранные предложения (checked) для текущей точки маршрута
+  const createOffersCheckedTemplate = (offersArray) => {
+    const allInputChecked = offersArray.filter((item) => item.checked === true);
+
+    return allInputChecked.map((item) => `<li class="event__offer">
+      <span class="event__offer-title">${item.title}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${item.price}</span>
+    </li>`)
+      .join('');
   };
+
+
+  // Записывает в переменную результат выполнения предыдущей функции. Затем вставляется в разметку как шаблон
+  const offersCheckedTemplate = createOffersCheckedTemplate(offers);
+
 
   return `<li class="trip-events__item">
               <div class="event">
@@ -46,7 +49,7 @@ function createWaypointTemplate(point) {
                 </p>
 
                 ${hasOffers(offers) ? `<h4 class="visually-hidden">Offers:</h4>
-                  <ul class="event__selected-offers">${showOffers()}</ul>` : ''}
+                  <ul class="event__selected-offers">${offersCheckedTemplate}</ul>` : ''}
 
                 <button class="${favoriteClassName}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
