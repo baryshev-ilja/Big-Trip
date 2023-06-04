@@ -38,40 +38,8 @@ export default class ContentPresenter {
 
   init() {
     this.#points = [...this.#pointsModel.points];
-    render(this.#routeWrapperComponent, this.#routeContainer, RenderPosition.AFTERBEGIN);
-    render(new RouteInfoView(), this.#routeWrapperComponent.element);
-    render(new RouteCostView(), this.#routeWrapperComponent.element);
-    render(new MenuNavView(), this.#menuContainer);
-    render(new FiltersView(), this.#filtersContainer);
-
-    if (this.#points.length === 0) {
-      render(new NoPointsView(), this.#tripEventsContainer);
-    } else {
-      render(new SortingView(), this.#tripEventsContainer);
-      render(this.#tripEventsListComponent, this.#tripEventsContainer);
-
-      for (let i = 0; i < Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS); i++) {
-        this.#renderPoint(this.#points[i]);
-      }
-    }
-
-    this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
+    this.#renderBoard();
   }
-
-  // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
-  #newEventButtonHandler = (evt) => {
-    evt.preventDefault();
-
-    if (this.#points.length === 0) {
-      render(new SortingView(), this.#tripEventsContainer);
-      render(this.#tripEventsListComponent, this.#tripEventsContainer);
-    }
-    this.#points
-      .slice(this.#renderedPointsCount, this.#renderedPointsCount + POINT_COUNT_PER_STEP)
-      .forEach((point) => this.#renderPoint(point));
-
-    this.#renderedPointsCount += POINT_COUNT_PER_STEP;
-  };
 
   #renderPoint(point) {
     const pointComponent = new WaypointView({point});
@@ -108,5 +76,35 @@ export default class ContentPresenter {
     });
 
     render(pointComponent, this.#tripEventsListComponent.element);
+  }
+
+  // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
+  #newEventButtonHandler = (evt) => {
+    evt.preventDefault();
+    this.#points
+      .slice(this.#renderedPointsCount, this.#renderedPointsCount + POINT_COUNT_PER_STEP)
+      .forEach((point) => this.#renderPoint(point));
+
+    this.#renderedPointsCount += POINT_COUNT_PER_STEP;
+  };
+
+  #renderBoard() {
+    render(this.#routeWrapperComponent, this.#routeContainer, RenderPosition.AFTERBEGIN);
+    render(new RouteInfoView(), this.#routeWrapperComponent.element);
+    render(new RouteCostView(), this.#routeWrapperComponent.element);
+    render(new MenuNavView(), this.#menuContainer);
+    render(new FiltersView(), this.#filtersContainer);
+
+    if (this.#points.length === 0) {
+      render(new NoPointsView(), this.#tripEventsContainer);
+    } else {
+      render(new SortingView(), this.#tripEventsContainer);
+      render(this.#tripEventsListComponent, this.#tripEventsContainer);
+      for (let i = 0; i < Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS); i++) {
+        this.#renderPoint(this.#points[i]);
+      }
+    }
+
+    this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
   }
 }
