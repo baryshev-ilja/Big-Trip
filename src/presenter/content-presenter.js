@@ -10,9 +10,12 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import WaypointView from '../view/waypoint-view.js';
 import {getIsEscape} from '../utils.js';
 
+const INITIAL_COUNT_OF_POINTS = 6;
+
 export default class ContentPresenter {
   #routeWrapperComponent = new RouteWrapperView();
   #tripEventsListComponent = new TripEventsListView();
+  #newEventButtonComponent = null;
   #tripEventsContainer = null;
   #routeContainer = null;
   #menuContainer = null;
@@ -21,12 +24,13 @@ export default class ContentPresenter {
 
   #points = [];
 
-  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel}) {
+  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel, newEventButton}) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#routeContainer = routeContainer;
     this.#menuContainer = menuContainer;
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
+    this.#newEventButtonComponent = newEventButton;
   }
 
   init() {
@@ -40,9 +44,18 @@ export default class ContentPresenter {
     render(new SortingView(), this.#tripEventsContainer);
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    for (let i = 0; i < this.#points.length; i++) {
+    for (let i = 0; i < INITIAL_COUNT_OF_POINTS; i++) {
       this.#renderPoint(this.#points[i]);
     }
+
+    if (this.#points.length > INITIAL_COUNT_OF_POINTS) {
+      this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
+    }
+  }
+
+  #newEventButtonHandler(evt) {
+    evt.preventDefault();
+    console.log('Работает!!!!!!!!!!!!!');
   }
 
   #renderPoint(point) {
