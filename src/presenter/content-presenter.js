@@ -1,5 +1,4 @@
 import {render, RenderPosition} from '../render.js';
-import EditFormView from '../view/edit-form-view.js';
 import FiltersView from '../view/filters-view.js';
 import MenuNavView from '../view/menu-nav-view.js';
 import RouteWrapperView from '../view/route-wrapper-view.js';
@@ -38,10 +37,15 @@ export default class ContentPresenter {
 
     render(new SortingView(), this.#tripEventsContainer);
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
-    render(new EditFormView({point: this.#points[0]}), this.#tripEventsListComponent.element);
 
-    for (let i = 1; i < this.#points.length; i++) {
-      render(new WaypointView({point: this.#points[i]}), this.#tripEventsListComponent.element);
+    for (let i = 0; i < this.#points.length; i++) {
+      this.#renderPoint(this.#points[i]);
     }
+  }
+
+  #renderPoint(point) {
+    const pointComponent = new WaypointView({point});
+
+    render(pointComponent, this.#tripEventsListComponent.element);
   }
 }
