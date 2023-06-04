@@ -8,6 +8,7 @@ import RouteCostView from '../view/route-cost-view.js';
 import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import WaypointView from '../view/waypoint-view.js';
+import NoPointsView from '../view/no-points-view.js';
 import {getIsEscape} from '../utils.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
@@ -43,11 +44,15 @@ export default class ContentPresenter {
     render(new MenuNavView(), this.#menuContainer);
     render(new FiltersView(), this.#filtersContainer);
 
-    render(new SortingView(), this.#tripEventsContainer);
-    render(this.#tripEventsListComponent, this.#tripEventsContainer);
+    if (this.#points.length === 0) {
+      render(new NoPointsView(), this.#tripEventsContainer);
+    } else {
+      render(new SortingView(), this.#tripEventsContainer);
+      render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    for (let i = 0; i < Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS); i++) {
-      this.#renderPoint(this.#points[i]);
+      for (let i = 0; i < Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS); i++) {
+        this.#renderPoint(this.#points[i]);
+      }
     }
 
     this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
@@ -56,6 +61,11 @@ export default class ContentPresenter {
   // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
   #newEventButtonHandler = (evt) => {
     evt.preventDefault();
+
+    if (this.#points.length === 0) {
+      render(new SortingView(), this.#tripEventsContainer);
+      render(this.#tripEventsListComponent, this.#tripEventsContainer);
+    }
     this.#points
       .slice(this.#renderedPointsCount, this.#renderedPointsCount + POINT_COUNT_PER_STEP)
       .forEach((point) => this.#renderPoint(point));
