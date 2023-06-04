@@ -11,6 +11,7 @@ import WaypointView from '../view/waypoint-view.js';
 import {getIsEscape} from '../utils.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
+const POINT_COUNT_PER_STEP = 1;
 
 export default class ContentPresenter {
   #routeWrapperComponent = new RouteWrapperView();
@@ -23,6 +24,7 @@ export default class ContentPresenter {
   #pointsModel = null;
 
   #points = [];
+  #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
 
   constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel, newEventButton}) {
     this.#tripEventsContainer = tripEventsContainer;
@@ -44,19 +46,22 @@ export default class ContentPresenter {
     render(new SortingView(), this.#tripEventsContainer);
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    for (let i = 0; i < INITIAL_COUNT_OF_POINTS; i++) {
+    for (let i = 0; i < Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS); i++) {
       this.#renderPoint(this.#points[i]);
     }
 
-    if (this.#points.length > INITIAL_COUNT_OF_POINTS) {
-      this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
-    }
+    this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
   }
 
-  #newEventButtonHandler(evt) {
+  // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
+  #newEventButtonHandler = (evt) => {
     evt.preventDefault();
-    console.log('Работает!!!!!!!!!!!!!');
-  }
+    this.#points
+      .slice(this.#renderedPointsCount, this.#renderedPointsCount + POINT_COUNT_PER_STEP)
+      .forEach((point) => this.#renderPoint(point));
+
+    this.#renderedPointsCount += POINT_COUNT_PER_STEP;
+  };
 
   #renderPoint(point) {
     const pointComponent = new WaypointView({point});
