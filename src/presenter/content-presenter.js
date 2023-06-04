@@ -1,4 +1,5 @@
 import {render, RenderPosition} from '../render.js';
+import EditFormView from '../view/edit-form-view.js';
 import FiltersView from '../view/filters-view.js';
 import MenuNavView from '../view/menu-nav-view.js';
 import RouteWrapperView from '../view/route-wrapper-view.js';
@@ -45,6 +46,26 @@ export default class ContentPresenter {
 
   #renderPoint(point) {
     const pointComponent = new WaypointView({point});
+    const pointEditComponent = new EditFormView({point});
+
+    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
+    const replaceWaypointToForm = () => {
+      this.#tripEventsListComponent.element.replaceChild(pointEditComponent.element, pointComponent.element);
+    };
+
+    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
+    const replaceFormToWaypoint = () => {
+      this.#tripEventsListComponent.element.replaceChild(pointComponent.element, pointEditComponent.element);
+    };
+
+    pointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceWaypointToForm();
+    });
+
+    pointEditComponent.element.addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      replaceFormToWaypoint();
+    });
 
     render(pointComponent, this.#tripEventsListComponent.element);
   }
