@@ -3,6 +3,7 @@ import PointsModel from './model/points-model.js';
 
 const siteMainElement = document.querySelector('.page-body');
 const siteHeaderMenuElement = siteMainElement.querySelector('.trip-main');
+const newEventButtonElement = siteHeaderMenuElement.querySelector('.trip-main__event-add-btn');
 const siteHeaderNavElement = siteHeaderMenuElement.querySelector('.trip-controls__navigation');
 const siteHeaderFiltersElement = siteHeaderMenuElement.querySelector('.trip-controls__filters');
 const siteEventsContainerElement = siteMainElement.querySelector('.trip-events');
@@ -13,7 +14,8 @@ const contentPresenter = new ContentPresenter({
   routeContainer: siteHeaderMenuElement,
   menuContainer: siteHeaderNavElement,
   filtersContainer: siteHeaderFiltersElement,
-  pointsModel
+  pointsModel,
+  newEventButton: newEventButtonElement
 });
 
 contentPresenter.init();

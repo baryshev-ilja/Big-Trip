@@ -110,6 +110,10 @@ function differentDate(dateFrom, dateTo) {
   }
 }
 
+
+// Функция для проверки клавиши Escape
+const getIsEscape = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
+
 export {
   getRandomArrayElement,
   getRandomPositiveInteger,
@@ -121,5 +125,6 @@ export {
   EDIT_DATE_FORMAT,
   TIME_FORMAT,
   hasOffers,
-  differentDate
+  differentDate,
+  getIsEscape
 };
