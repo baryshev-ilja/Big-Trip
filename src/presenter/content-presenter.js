@@ -8,6 +8,7 @@ import RouteCostView from '../view/route-cost-view.js';
 import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import WaypointView from '../view/waypoint-view.js';
+import {getIsEscape} from '../utils.js';
 
 export default class ContentPresenter {
   #routeWrapperComponent = new RouteWrapperView();
@@ -58,13 +59,24 @@ export default class ContentPresenter {
       this.#tripEventsListComponent.element.replaceChild(pointComponent.element, pointEditComponent.element);
     };
 
+    // Функция-обработчик нажатия клавиши Escape
+    const escKeyDownHandler = (evt) => {
+      if(getIsEscape(evt)) {
+        evt.preventDefault();
+        replaceFormToWaypoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
+
     pointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
       replaceWaypointToForm();
+      document.addEventListener('keydown', escKeyDownHandler);
     });
 
     pointEditComponent.element.addEventListener('submit', (evt) => {
       evt.preventDefault();
       replaceFormToWaypoint();
+      document.removeEventListener('keydown', escKeyDownHandler);
     });
 
     render(pointComponent, this.#tripEventsListComponent.element);
