@@ -1,7 +1,8 @@
 import {createDestinationTemplate} from './destinations-mock.js';
 import {offersByType} from './offers-mock.js';
 import {Types, CITIES} from '../const.js';
-import {getRandomPositiveInteger, getRandomArrayElement, generateDateFrom, generateDateTo} from '../utils.js';
+import { generateDateFrom, generateDateTo} from '../utils/mock.js';
+import {getRandomPositiveInteger, getRandomArrayElement} from '../utils/common.js';
 
 // Коллекция уникальных городов
 const arrayUniqOfCities = new Set();

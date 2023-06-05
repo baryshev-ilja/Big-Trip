@@ -1,4 +1,4 @@
-import {render, RenderPosition} from '../framework/render.js';
+import {render, RenderPosition, replace} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
 import FiltersView from '../view/filters-view.js';
 import MenuNavView from '../view/menu-nav-view.js';
@@ -9,7 +9,7 @@ import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import WaypointView from '../view/waypoint-view.js';
 import NoPointsView from '../view/no-points-view.js';
-import {getIsEscape} from '../utils.js';
+import {getIsEscape} from '../utils/common.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
 const POINT_COUNT_PER_STEP = 1;
@@ -69,13 +69,13 @@ export default class ContentPresenter {
 
     // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
     function replaceWaypointToForm() {
-      this.#tripEventsListComponent.element.replaceChild(pointEditComponent.element, pointComponent.element);
+      replace(pointEditComponent, pointComponent);
     }
 
 
     // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
     function replaceFormToWaypoint() {
-      this.#tripEventsListComponent.element.replaceChild(pointComponent.element, pointEditComponent.element);
+      replace(pointComponent, pointEditComponent);
     }
 
 

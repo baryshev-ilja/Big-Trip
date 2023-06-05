@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {humanizeDate, DATE_FORMAT, TIME_FORMAT, hasOffers, differentDate} from '../utils.js';
+import {humanizeDate, DATE_FORMAT, TIME_FORMAT, hasOffers, differentDate} from '../utils/waypoint.js';
 
 function createWaypointTemplate(point) {
   const {basePrice, dateFrom, dateTo, destination, isFavorite, offers, type} = point;
