@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {createRandomWaypoint} from '../mock/waypoint-mock.js';
 import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils.js';
 import {Types} from '../const.js';
@@ -148,27 +148,15 @@ function createEditFormTemplate(data) {
               </form>`;
 }
 
-export default class EditFormView {
-  #element = null;
+export default class EditFormView extends AbstractView {
   #point = null;
 
   constructor({point = BLANK_POINT}) {
+    super();
     this.#point = point;
   }
 
   get template() {
     return createEditFormTemplate(this.#point);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

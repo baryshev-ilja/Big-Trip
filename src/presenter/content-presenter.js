@@ -1,4 +1,4 @@
-import {render, RenderPosition} from '../render.js';
+import {render, RenderPosition} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
 import FiltersView from '../view/filters-view.js';
 import MenuNavView from '../view/menu-nav-view.js';
