@@ -151,12 +151,25 @@ function createEditFormTemplate(data) {
 export default class EditFormView extends AbstractView {
   #point = null;
 
-  constructor({point = BLANK_POINT}) {
+  // Сюда будет передаваться функция, которая будет вызываться в слушателе события
+  #handleFormSubmit = null;
+
+  constructor({point = BLANK_POINT, onFormSubmit}) {
     super();
     this.#point = point;
+    this.#handleFormSubmit = onFormSubmit;
+
+    // Навешиваем на форму (это и есть первый родительский элемент - form) слушатель события Submit
+    this.element.addEventListener('submit', this.#formSubmitHandler);
   }
 
   get template() {
     return createEditFormTemplate(this.#point);
   }
+
+  // Функция-колбек, которая будет передаваться в слушатель события
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 }

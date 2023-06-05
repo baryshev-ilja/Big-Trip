@@ -42,38 +42,42 @@ export default class ContentPresenter {
   }
 
   #renderPoint(point) {
-    const pointComponent = new WaypointView({point});
-    const pointEditComponent = new EditFormView({point});
-
-    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
-    const replaceWaypointToForm = () => {
-      this.#tripEventsListComponent.element.replaceChild(pointEditComponent.element, pointComponent.element);
-    };
-
-    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
-    const replaceFormToWaypoint = () => {
-      this.#tripEventsListComponent.element.replaceChild(pointComponent.element, pointEditComponent.element);
-    };
-
     // Функция-обработчик нажатия клавиши Escape
     const escKeyDownHandler = (evt) => {
-      if(getIsEscape(evt)) {
+      if (getIsEscape(evt)) {
         evt.preventDefault();
-        replaceFormToWaypoint();
+        replaceFormToWaypoint.call(this);
         document.removeEventListener('keydown', escKeyDownHandler);
       }
     };
 
-    pointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      replaceWaypointToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
+    const pointComponent = new WaypointView({
+      point,
+      onEditClick: () => {
+        replaceWaypointToForm.call(this);
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
     });
 
-    pointEditComponent.element.addEventListener('submit', (evt) => {
-      evt.preventDefault();
-      replaceFormToWaypoint();
-      document.removeEventListener('keydown', escKeyDownHandler);
+    const pointEditComponent = new EditFormView({
+      point,
+      onFormSubmit: () => {
+        replaceFormToWaypoint.call(this);
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
     });
+
+    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
+    function replaceWaypointToForm() {
+      this.#tripEventsListComponent.element.replaceChild(pointEditComponent.element, pointComponent.element);
+    }
+
+
+    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
+    function replaceFormToWaypoint() {
+      this.#tripEventsListComponent.element.replaceChild(pointComponent.element, pointEditComponent.element);
+    }
+
 
     render(pointComponent, this.#tripEventsListComponent.element);
   }

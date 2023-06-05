@@ -67,12 +67,26 @@ function createWaypointTemplate(point) {
 export default class WaypointView extends AbstractView {
   #point = null;
 
-  constructor({point}) {
+  // Сюда будет передаваться функция, которая будет вызываться в слушателе события
+  #handleEditClick = null;
+
+  constructor({point, onEditClick}) {
     super();
     this.#point = point;
+    this.#handleEditClick = onEditClick;
+
+    // Навешиваем на кнопку слушатель события Click
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
   }
 
   get template() {
     return createWaypointTemplate(this.#point);
   }
+
+  // Функция-колбек, которая будет передаваться в слушатель события
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }
