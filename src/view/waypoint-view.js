@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
-import {humanizeDate, DATE_FORMAT, TIME_FORMAT, hasOffers, differentDate} from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import {humanizeDate, DATE_FORMAT, TIME_FORMAT, hasOffers, differentDate} from '../utils/waypoint.js';
 
 function createWaypointTemplate(point) {
   const {basePrice, dateFrom, dateTo, destination, isFavorite, offers, type} = point;
@@ -64,27 +64,29 @@ function createWaypointTemplate(point) {
             </li>`;
 }
 
-export default class WaypointView {
-  #element = null;
+export default class WaypointView extends AbstractView {
   #point = null;
 
-  constructor({point}) {
+  // Сюда будет передаваться функция, которая будет вызываться в слушателе события
+  #handleEditClick = null;
+
+  constructor({point, onEditClick}) {
+    super();
     this.#point = point;
+    this.#handleEditClick = onEditClick;
+
+    // Навешиваем на кнопку слушатель события Click
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
   }
 
   get template() {
     return createWaypointTemplate(this.#point);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  // Функция-колбек, которая будет передаваться в слушатель события
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }

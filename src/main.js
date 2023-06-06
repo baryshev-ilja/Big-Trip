@@ -1,5 +1,6 @@
 import ContentPresenter from './presenter/content-presenter.js';
 import PointsModel from './model/points-model.js';
+import {generateFilter} from './mock/filter.js';
 
 const siteMainElement = document.querySelector('.page-body');
 const siteHeaderMenuElement = siteMainElement.querySelector('.trip-main');
@@ -9,13 +10,17 @@ const siteHeaderFiltersElement = siteHeaderMenuElement.querySelector('.trip-cont
 const siteEventsContainerElement = siteMainElement.querySelector('.trip-events');
 
 const pointsModel = new PointsModel();
+
+const filters = generateFilter(pointsModel.points);
+
 const contentPresenter = new ContentPresenter({
   tripEventsContainer: siteEventsContainerElement,
   routeContainer: siteHeaderMenuElement,
   menuContainer: siteHeaderNavElement,
   filtersContainer: siteHeaderFiltersElement,
   pointsModel,
-  newEventButton: newEventButtonElement
+  newEventButton: newEventButtonElement,
+  filters: filters
 });
 
 contentPresenter.init();

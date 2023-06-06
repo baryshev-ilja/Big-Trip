@@ -1,6 +1,6 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {createRandomWaypoint} from '../mock/waypoint-mock.js';
-import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils.js';
+import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/waypoint.js';
 import {Types} from '../const.js';
 
 
@@ -148,27 +148,28 @@ function createEditFormTemplate(data) {
               </form>`;
 }
 
-export default class EditFormView {
-  #element = null;
+export default class EditFormView extends AbstractView {
   #point = null;
 
-  constructor({point = BLANK_POINT}) {
+  // Сюда будет передаваться функция, которая будет вызываться в слушателе события
+  #handleFormSubmit = null;
+
+  constructor({point = BLANK_POINT, onFormSubmit}) {
+    super();
     this.#point = point;
+    this.#handleFormSubmit = onFormSubmit;
+
+    // Навешиваем на форму (это и есть первый родительский элемент - form) слушатель события Submit
+    this.element.addEventListener('submit', this.#formSubmitHandler);
   }
 
   get template() {
     return createEditFormTemplate(this.#point);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  // Функция-колбек, которая будет передаваться в слушатель события
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 }

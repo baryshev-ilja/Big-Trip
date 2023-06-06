@@ -41,4 +41,10 @@ const CITIES = [
   'Tashkent',
 ];
 
-export {Types, CITIES};
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
+};
+
+export {Types, CITIES, FilterType};

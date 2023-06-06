@@ -1,4 +1,4 @@
-import {render, RenderPosition} from '../render.js';
+import {render, RenderPosition, replace} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
 import FiltersView from '../view/filters-view.js';
 import MenuNavView from '../view/menu-nav-view.js';
@@ -9,7 +9,7 @@ import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import WaypointView from '../view/waypoint-view.js';
 import NoPointsView from '../view/no-points-view.js';
-import {getIsEscape} from '../utils.js';
+import {getIsEscape} from '../utils/common.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
 const POINT_COUNT_PER_STEP = 1;
@@ -23,17 +23,19 @@ export default class ContentPresenter {
   #menuContainer = null;
   #filtersContainer = null;
   #pointsModel = null;
+  #filters = null;
 
   #points = [];
   #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
 
-  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel, newEventButton}) {
+  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel, newEventButton, filters}) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#routeContainer = routeContainer;
     this.#menuContainer = menuContainer;
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
     this.#newEventButtonComponent = newEventButton;
+    this.#filters = filters;
   }
 
   init() {
@@ -42,38 +44,42 @@ export default class ContentPresenter {
   }
 
   #renderPoint(point) {
-    const pointComponent = new WaypointView({point});
-    const pointEditComponent = new EditFormView({point});
-
-    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
-    const replaceWaypointToForm = () => {
-      this.#tripEventsListComponent.element.replaceChild(pointEditComponent.element, pointComponent.element);
-    };
-
-    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
-    const replaceFormToWaypoint = () => {
-      this.#tripEventsListComponent.element.replaceChild(pointComponent.element, pointEditComponent.element);
-    };
-
     // Функция-обработчик нажатия клавиши Escape
     const escKeyDownHandler = (evt) => {
-      if(getIsEscape(evt)) {
+      if (getIsEscape(evt)) {
         evt.preventDefault();
-        replaceFormToWaypoint();
+        replaceFormToWaypoint.call(this);
         document.removeEventListener('keydown', escKeyDownHandler);
       }
     };
 
-    pointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      replaceWaypointToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
+    const pointComponent = new WaypointView({
+      point,
+      onEditClick: () => {
+        replaceWaypointToForm.call(this);
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
     });
 
-    pointEditComponent.element.addEventListener('submit', (evt) => {
-      evt.preventDefault();
-      replaceFormToWaypoint();
-      document.removeEventListener('keydown', escKeyDownHandler);
+    const pointEditComponent = new EditFormView({
+      point,
+      onFormSubmit: () => {
+        replaceFormToWaypoint.call(this);
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
     });
+
+    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
+    function replaceWaypointToForm() {
+      replace(pointEditComponent, pointComponent);
+    }
+
+
+    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
+    function replaceFormToWaypoint() {
+      replace(pointComponent, pointEditComponent);
+    }
+
 
     render(pointComponent, this.#tripEventsListComponent.element);
   }
@@ -93,7 +99,7 @@ export default class ContentPresenter {
     render(new RouteInfoView(), this.#routeWrapperComponent.element);
     render(new RouteCostView(), this.#routeWrapperComponent.element);
     render(new MenuNavView(), this.#menuContainer);
-    render(new FiltersView(), this.#filtersContainer);
+    render(new FiltersView(this.#filters), this.#filtersContainer);
 
     if (this.#points.length === 0) {
       render(new NoPointsView(), this.#tripEventsContainer);

@@ -1,4 +1,5 @@
-import {getRandomPositiveInteger, getRandomArrayElement, createArrayOfElements} from '../utils.js';
+import {getRandomPositiveInteger, getRandomArrayElement} from '../utils/common.js';
+import {createArrayOfElements} from '../utils/mock.js';
 
 const descriptionMock = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
