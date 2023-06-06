@@ -1,4 +1,7 @@
 import dayjs from 'dayjs';
+const isSameOrAfter = require('dayjs/plugin/isSameOrAfter');
+dayjs.extend(isSameOrAfter);
+
 
 const DATE_FORMAT = 'MMM D';
 const TIME_FORMAT = 'HH:MM';
@@ -7,6 +10,18 @@ const EDIT_DATE_FORMAT = 'DD/MM/YY';
 
 // Функция для конвертации времени в человеко-понятный формат
 const humanizeDate = (dueDate, dateFormat) => dueDate ? dayjs(dueDate).format(dateFormat) : '';
+
+
+// Функция проверяет, просрочена ли дата события или нет
+function isEventExpired(dueDate) {
+  return dayjs().isAfter(dueDate, 'D');
+}
+
+
+// Функция, которая проверяет - текущая дата равна или находится раньше даты начала события
+function isEventInFuture(dueDate) {
+  return dayjs(dueDate).isSameOrAfter(dayjs(), 'D');
+}
 
 
 // Функция вернет true если в массиве с предложениями есть хотя-бы одно предложение
@@ -61,4 +76,13 @@ function differentDate(dateFrom, dateTo) {
   }
 }
 
-export {humanizeDate, DATE_FORMAT, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers, differentDate};
+export {
+  humanizeDate,
+  isEventExpired,
+  isEventInFuture,
+  DATE_FORMAT,
+  EDIT_DATE_FORMAT,
+  TIME_FORMAT,
+  hasOffers,
+  differentDate
+};
