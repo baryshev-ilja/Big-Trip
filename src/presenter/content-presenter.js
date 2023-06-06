@@ -99,7 +99,7 @@ export default class ContentPresenter {
     render(new RouteInfoView(), this.#routeWrapperComponent.element);
     render(new RouteCostView(), this.#routeWrapperComponent.element);
     render(new MenuNavView(), this.#menuContainer);
-    render(new FiltersView({this.#filters}), this.#filtersContainer);
+    render(new FiltersView(this.#filters), this.#filtersContainer);
 
     if (this.#points.length === 0) {
       render(new NoPointsView(), this.#tripEventsContainer);
