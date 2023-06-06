@@ -23,17 +23,19 @@ export default class ContentPresenter {
   #menuContainer = null;
   #filtersContainer = null;
   #pointsModel = null;
+  #filters = null;
 
   #points = [];
   #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
 
-  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel, newEventButton}) {
+  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel, newEventButton, filters}) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#routeContainer = routeContainer;
     this.#menuContainer = menuContainer;
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
     this.#newEventButtonComponent = newEventButton;
+    this.#filters = filters;
   }
 
   init() {
@@ -97,7 +99,7 @@ export default class ContentPresenter {
     render(new RouteInfoView(), this.#routeWrapperComponent.element);
     render(new RouteCostView(), this.#routeWrapperComponent.element);
     render(new MenuNavView(), this.#menuContainer);
-    render(new FiltersView(), this.#filtersContainer);
+    render(new FiltersView({this.#filters}), this.#filtersContainer);
 
     if (this.#points.length === 0) {
       render(new NoPointsView(), this.#tripEventsContainer);
