@@ -24,11 +24,24 @@ export default class ContentPresenter {
   #filtersContainer = null;
   #pointsModel = null;
   #filters = null;
+  #sortComponent = new SortingView();
+  #noPointsComponent = new NoPointsView();
+  #routeInfoComponent = new RouteInfoView();
+  #routeCostComponent = new RouteCostView();
+  #menuNavComponent = new MenuNavView();
 
   #points = [];
   #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
 
-  constructor({tripEventsContainer, routeContainer, menuContainer, filtersContainer, pointsModel, newEventButton, filters}) {
+  constructor({
+    tripEventsContainer,
+    routeContainer,
+    menuContainer,
+    filtersContainer,
+    pointsModel,
+    newEventButton,
+    filters
+  }) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#routeContainer = routeContainer;
     this.#menuContainer = menuContainer;
@@ -36,11 +49,17 @@ export default class ContentPresenter {
     this.#pointsModel = pointsModel;
     this.#newEventButtonComponent = newEventButton;
     this.#filters = filters;
+
   }
+
 
   init() {
     this.#points = [...this.#pointsModel.points];
     this.#renderBoard();
+  }
+
+  #renderSort() {
+    render(this.#sortComponent, this.#tripEventsContainer);
   }
 
   #renderPoint(point) {
@@ -84,6 +103,42 @@ export default class ContentPresenter {
     render(pointComponent, this.#tripEventsListComponent.element);
   }
 
+  #renderPoints(from, to) {
+    this.#points
+      .slice(from, to)
+      .forEach((point) => this.#renderPoint(point));
+  }
+
+  #renderPointsList() {
+    render(this.#tripEventsListComponent, this.#tripEventsContainer);
+    this.#renderPoints(0, Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS));
+  }
+
+  #renderNoPoints() {
+    render(this.#noPointsComponent, this.#tripEventsContainer);
+  }
+
+  #renderRouteWrapper() {
+    render(this.#routeWrapperComponent, this.#routeContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderRouteInfo() {
+    render(this.#routeInfoComponent, this.#routeWrapperComponent.element);
+  }
+
+  #renderRouteCost() {
+    render(this.#routeCostComponent, this.#routeWrapperComponent.element);
+  }
+
+  #renderMenuNav() {
+    render(this.#menuNavComponent, this.#menuContainer);
+  }
+
+  #renderMenuFilters() {
+    const menuFilterComponent = new FiltersView(this.#filters);
+    render(menuFilterComponent, this.#filtersContainer);
+  }
+
   // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
   #newEventButtonHandler = (evt) => {
     evt.preventDefault();
@@ -95,21 +150,19 @@ export default class ContentPresenter {
   };
 
   #renderBoard() {
-    render(this.#routeWrapperComponent, this.#routeContainer, RenderPosition.AFTERBEGIN);
-    render(new RouteInfoView(), this.#routeWrapperComponent.element);
-    render(new RouteCostView(), this.#routeWrapperComponent.element);
-    render(new MenuNavView(), this.#menuContainer);
-    render(new FiltersView(this.#filters), this.#filtersContainer);
+    this.#renderRouteWrapper();
+    this.#renderRouteInfo();
+    this.#renderRouteCost();
+    this.#renderMenuNav();
+    this.#renderMenuFilters();
 
     if (this.#points.length === 0) {
-      render(new NoPointsView(), this.#tripEventsContainer);
-    } else {
-      render(new SortingView(), this.#tripEventsContainer);
-      render(this.#tripEventsListComponent, this.#tripEventsContainer);
-      for (let i = 0; i < Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS); i++) {
-        this.#renderPoint(this.#points[i]);
-      }
+      this.#renderNoPoints();
+      return;
     }
+
+    this.#renderSort();
+    this.#renderPointsList();
 
     this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
   }
