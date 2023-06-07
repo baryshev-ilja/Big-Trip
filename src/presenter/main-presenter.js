@@ -1,5 +1,4 @@
-import {render, RenderPosition, replace} from '../framework/render.js';
-import EditFormView from '../view/edit-form-view.js';
+import {render, RenderPosition} from '../framework/render.js';
 import FiltersView from '../view/filters-view.js';
 import MenuNavView from '../view/menu-nav-view.js';
 import RouteWrapperView from '../view/route-wrapper-view.js';
@@ -7,14 +6,13 @@ import RouteInfoView from '../view/route-info-view.js';
 import RouteCostView from '../view/route-cost-view.js';
 import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
-import WaypointView from '../view/waypoint-view.js';
 import NoPointsView from '../view/no-points-view.js';
-import {getIsEscape} from '../utils/common.js';
+import PointPresenter from './point-presenter.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
 const POINT_COUNT_PER_STEP = 1;
 
-export default class ContentPresenter {
+export default class MainPresenter {
   #routeWrapperComponent = new RouteWrapperView();
   #tripEventsListComponent = new TripEventsListView();
   #newEventButtonComponent = null;
@@ -52,7 +50,6 @@ export default class ContentPresenter {
 
   }
 
-
   init() {
     this.#points = [...this.#pointsModel.points];
     this.#renderBoard();
@@ -63,44 +60,11 @@ export default class ContentPresenter {
   }
 
   #renderPoint(point) {
-    // Функция-обработчик нажатия клавиши Escape
-    const escKeyDownHandler = (evt) => {
-      if (getIsEscape(evt)) {
-        evt.preventDefault();
-        replaceFormToWaypoint.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const pointComponent = new WaypointView({
-      point,
-      onEditClick: () => {
-        replaceWaypointToForm.call(this);
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+    const pointPresenter = new PointPresenter({
+      pointsListContainer: this.#tripEventsListComponent.element,
     });
 
-    const pointEditComponent = new EditFormView({
-      point,
-      onFormSubmit: () => {
-        replaceFormToWaypoint.call(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    });
-
-    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
-    function replaceWaypointToForm() {
-      replace(pointEditComponent, pointComponent);
-    }
-
-
-    // Функция, которая переводит точку маршрута в режим редактирования (открывается форма редактирования)
-    function replaceFormToWaypoint() {
-      replace(pointComponent, pointEditComponent);
-    }
-
-
-    render(pointComponent, this.#tripEventsListComponent.element);
+    pointPresenter.init(point);
   }
 
   #renderPoints(from, to) {
