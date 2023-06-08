@@ -9,7 +9,7 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
 import {updateItem} from '../utils/common.js';
-import {sortTime, sortPrice} from '../utils/waypoint.js';
+import {sortDay, sortTime, sortPrice} from '../utils/waypoint.js';
 import {SortType} from '../const.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
@@ -34,7 +34,7 @@ export default class MainPresenter {
   #points = [];
   #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
   #pointPresenter = new Map();
-  #currentSortType = SortType.DAY;
+  #currentSortType = SortType.PRICE;
   #sourcedPoints = [];
 
   constructor({
@@ -57,11 +57,11 @@ export default class MainPresenter {
   }
 
   init() {
-    this.#points = [...this.#pointsModel.points];
+    this.#points = [...this.#pointsModel.points].sort(sortDay);
     // 1. В отличии от сортировки по любому параметру,
     // исходный порядок можно сохранить только одним способом -
     // сохранив исходный массив:
-    this.#sourcedPoints = [...this.#pointsModel.points];
+    this.#sourcedPoints = [...this.#points];
     this.#renderBoard();
   }
 
@@ -71,7 +71,7 @@ export default class MainPresenter {
 
   #handlePointChange = (updatedPoint) => {
     this.#points = updateItem(this.#points, updatedPoint);
-    this.#sourcedPoints = updatedPoint(this.#sourcedPoints, updatedPoint);
+    this.#sourcedPoints = updateItem(this.#sourcedPoints, updatedPoint);
     this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
   };
 
@@ -101,8 +101,8 @@ export default class MainPresenter {
     }
 
     this.#sortPoints(sortType);
-    // - Очищаем список
-    // - Рендерим список заново
+    this.#clearPointsList();
+    this.#renderPointsList();
   };
 
   #renderSort() {

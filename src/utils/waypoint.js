@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import {createRandomWaypoint} from '../mock/waypoint-mock';
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter');
 dayjs.extend(isSameOrAfter);
 
@@ -91,6 +90,12 @@ function sortTime(pointA, pointB) {
   return totalAmountOfTimeB - totalAmountOfTimeA;
 }
 
+function sortDay(pointA, pointB) {
+  const {dateFrom: dateFromA} = pointA;
+  const {dateFrom: dateFromB} = pointB;
+  return dayjs(dateFromA).diff(dayjs(dateFromB));
+}
+
 
 export {
   humanizeDate,
@@ -102,5 +107,6 @@ export {
   hasOffers,
   differentDate,
   sortTime,
-  sortPrice
+  sortPrice,
+  sortDay
 };

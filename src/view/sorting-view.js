@@ -10,7 +10,8 @@ function createSortingTemplate() {
                type="radio"
                name="trip-sort"
                value="sort-day"
-               data-sort-type="${SortType.DAY}">
+               data-sort-type="${SortType.DAY}"
+               checked>
               <label
                class="trip-sort__btn"
                for="sort-day">Day</label>
@@ -49,8 +50,7 @@ function createSortingTemplate() {
                type="radio"
                name="trip-sort"
                value="sort-price"
-               data-sort-type="${SortType.PRICE}"
-               checked>
+               data-sort-type="${SortType.PRICE}">
               <label
                class="trip-sort__btn"
                for="sort-price">Price</label>
@@ -86,11 +86,10 @@ export default class SortingView extends AbstractView {
   }
 
   #sortTypeChangeHandler = (evt) => {
-    if (evt.target.tagName !== 'label') {
+    if (evt.target.className !== 'trip-sort__input  visually-hidden') {
       return;
     }
 
-    evt.preventDefault();
     this.#handleSortTypeChange(evt.target.dataset.sortType);
   };
 }
