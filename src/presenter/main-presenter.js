@@ -64,7 +64,7 @@ export default class MainPresenter {
       pointsListContainer: this.#tripEventsListComponent.element,
     });
 
-    pointPresenter.init(point);
+    pointPresenter.init(point, 1);
   }
 
   #renderPoints(from, to) {
