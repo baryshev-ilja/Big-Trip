@@ -170,6 +170,6 @@ export default class EditFormView extends AbstractView {
   // Функция-колбек, которая будет передаваться в слушатель события
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(this.#point);
   };
 }

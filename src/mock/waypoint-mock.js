@@ -3,6 +3,7 @@ import {offersByType} from './offers-mock.js';
 import {Types, CITIES} from '../const.js';
 import { generateDateFrom, generateDateTo} from '../utils/mock.js';
 import {getRandomPositiveInteger, getRandomArrayElement} from '../utils/common.js';
+import {nanoid} from 'nanoid';
 
 // Коллекция уникальных городов
 const arrayUniqOfCities = new Set();
@@ -33,6 +34,7 @@ function createRandomWaypoint() {
   const dateTo = generateDateTo(dateFrom);
 
   return {
+    id: nanoid(),
     basePrice: getRandomPositiveInteger(100, 467),
     dateFrom: dateFrom,
     dateTo: dateTo,

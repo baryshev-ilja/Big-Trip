@@ -76,6 +76,27 @@ function differentDate(dateFrom, dateTo) {
   }
 }
 
+function sortPrice(pointA, pointB) {
+  return pointB.basePrice - pointA.basePrice;
+}
+
+function sortTime(pointA, pointB) {
+  const {dateFrom: dateFromA, dateTo: dateToA} = pointA;
+  const {dateFrom: dateFromB, dateTo: dateToB} = pointB;
+
+  const totalAmountOfTimeA = dayjs(dateToA).diff(dayjs(dateFromA));
+  const totalAmountOfTimeB = dayjs(dateToB).diff(dayjs(dateFromB));
+
+  return totalAmountOfTimeB - totalAmountOfTimeA;
+}
+
+function sortDay(pointA, pointB) {
+  const {dateFrom: dateFromA} = pointA;
+  const {dateFrom: dateFromB} = pointB;
+  return dayjs(dateFromA).diff(dayjs(dateFromB));
+}
+
+
 export {
   humanizeDate,
   isEventExpired,
@@ -84,5 +105,8 @@ export {
   EDIT_DATE_FORMAT,
   TIME_FORMAT,
   hasOffers,
-  differentDate
+  differentDate,
+  sortTime,
+  sortPrice,
+  sortDay
 };

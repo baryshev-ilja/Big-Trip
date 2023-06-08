@@ -1,4 +1,4 @@
-import ContentPresenter from './presenter/content-presenter.js';
+import MainPresenter from './presenter/main-presenter.js';
 import PointsModel from './model/points-model.js';
 import {generateFilter} from './mock/filter.js';
 
@@ -13,7 +13,7 @@ const pointsModel = new PointsModel();
 
 const filters = generateFilter(pointsModel.points);
 
-const contentPresenter = new ContentPresenter({
+const mainPresenter = new MainPresenter({
   tripEventsContainer: siteEventsContainerElement,
   routeContainer: siteHeaderMenuElement,
   menuContainer: siteHeaderNavElement,
@@ -23,4 +23,4 @@ const contentPresenter = new ContentPresenter({
   filters: filters
 });
 
-contentPresenter.init();
+mainPresenter.init();
