@@ -23,7 +23,7 @@ export default class MainPresenter {
   #filtersContainer = null;
   #pointsModel = null;
   #filters = null;
-  #sortComponent = new SortingView();
+  #sortComponent = null;
   #noPointsComponent = new NoPointsView();
   #routeInfoComponent = new RouteInfoView();
   #routeCostComponent = new RouteCostView();
@@ -66,7 +66,16 @@ export default class MainPresenter {
     this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
   };
 
+  #handleSortTypeChange = (sortType) => {
+    // - Сортируем точки
+    // - Очищаем список
+    // - Рендерим список заново
+  };
+
   #renderSort() {
+    this.#sortComponent = new SortingView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
     render(this.#sortComponent, this.#tripEventsContainer);
   }
 
