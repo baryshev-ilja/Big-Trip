@@ -9,6 +9,8 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
 import {updateItem} from '../utils/common.js';
+import {sortTime, sortPrice} from '../utils/waypoint.js';
+import {SortType} from '../const.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
 const POINT_COUNT_PER_STEP = 1;
@@ -32,6 +34,8 @@ export default class MainPresenter {
   #points = [];
   #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
   #pointPresenter = new Map();
+  #currentSortType = SortType.DAY;
+  #sourcedPoints = [];
 
   constructor({
     tripEventsContainer,
@@ -54,6 +58,10 @@ export default class MainPresenter {
 
   init() {
     this.#points = [...this.#pointsModel.points];
+    // 1. В отличии от сортировки по любому параметру,
+    // исходный порядок можно сохранить только одним способом -
+    // сохранив исходный массив:
+    this.#sourcedPoints = [...this.#pointsModel.points];
     this.#renderBoard();
   }
 
@@ -63,11 +71,36 @@ export default class MainPresenter {
 
   #handlePointChange = (updatedPoint) => {
     this.#points = updateItem(this.#points, updatedPoint);
+    this.#sourcedPoints = updatedPoint(this.#sourcedPoints, updatedPoint);
     this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
   };
 
+  #sortPoints(sortType) {
+    // 2. Этот исходный массив задач необходим,
+    // потому что для сортировки мы будем мутировать
+    // массив в свойстве #points
+    switch (sortType) {
+      case SortType.TIME:
+        this.#points.sort(sortTime);
+        break;
+      case SortType.PRICE:
+        this.#points.sort(sortPrice);
+        break;
+      default:
+        // 3. А когда пользователь захочет "вернуть всё, как было",
+        // мы просто запишем в _boardTasks исходный массив
+        this.#points = [...this.#sourcedPoints];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
   #handleSortTypeChange = (sortType) => {
-    // - Сортируем точки
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
     // - Очищаем список
     // - Рендерим список заново
   };
