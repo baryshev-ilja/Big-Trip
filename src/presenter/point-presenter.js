@@ -3,16 +3,26 @@ import WaypointView from '../view/waypoint-view.js';
 import EditFormView from '../view/edit-form-view.js';
 import {getIsEscape} from '../utils/common';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export default class PointPresenter {
   #pointsListContainer = null;
   #handleDataChange = null;
+  #handleModeChange = null;
+
   #waypointComponent = null;
   #waypointEditComponent = null;
-  #point = null;
 
-  constructor({pointsListContainer, onDataChange}) {
+  #point = null;
+  #mode = Mode.DEFAULT;
+
+  constructor({pointsListContainer, onDataChange, onModeChange}) {
     this.#pointsListContainer = pointsListContainer;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(point) {
@@ -39,13 +49,11 @@ export default class PointPresenter {
       return;
     }
 
-    // Проверка на наличие в DOM необходима,
-    // чтобы не пытаться заменить то, что не было отрисовано
-    if(this.#pointsListContainer.contains(prevWaypointComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#waypointComponent, prevWaypointComponent);
     }
 
-    if(this.#pointsListContainer.contains(prevWaypointEditComponent.element)) {
+    if(this.#mode === Mode.EDITING) {
       replace(this.#waypointEditComponent, prevWaypointEditComponent);
     }
 
@@ -53,6 +61,12 @@ export default class PointPresenter {
     remove(prevWaypointEditComponent);
 
     // console.log(`${count}-[3]`, 'prevWaypointComponent', prevWaypointComponent, 'this.#waypointComponent', this.#waypointComponent);
+  }
+
+  resetMode() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToWaypoint();
+    }
   }
 
   destroy() {
@@ -72,6 +86,8 @@ export default class PointPresenter {
   #replaceWaypointToForm() {
     replace(this.#waypointEditComponent, this.#waypointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
 
 
@@ -79,6 +95,7 @@ export default class PointPresenter {
   #replaceFormToWaypoint() {
     replace(this.#waypointComponent, this.#waypointEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #handleEditClick = () => {
