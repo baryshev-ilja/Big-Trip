@@ -5,24 +5,26 @@ import {getIsEscape} from '../utils/common';
 
 export default class PointPresenter {
   #pointsListContainer = null;
+  #handleDataChange = null;
   #waypointComponent = null;
   #waypointEditComponent = null;
   #point = null;
 
-  constructor({pointsListContainer}) {
+  constructor({pointsListContainer, onDataChange}) {
     this.#pointsListContainer = pointsListContainer;
+    this.#handleDataChange = onDataChange;
   }
 
-  init(point, count) {
+  init(point) {
     this.#point = point;
 
     const prevWaypointComponent = this.#waypointComponent;
     const prevWaypointEditComponent = this.#waypointEditComponent;
-    // console.log(1, prevWaypointComponent, this.#waypointComponent);
 
     this.#waypointComponent = new WaypointView({
       point: this.#point,
       onEditClick: this.#handleEditClick,
+      onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#waypointEditComponent = new EditFormView({
@@ -32,12 +34,10 @@ export default class PointPresenter {
 
     // console.log(`${count}-[2]`, 'prevWaypointComponent', prevWaypointComponent, 'this.#waypointComponent', this.#waypointComponent);
 
-
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
       render(this.#waypointComponent, this.#pointsListContainer);
       return;
     }
-
 
     // Проверка на наличие в DOM необходима,
     // чтобы не пытаться заменить то, что не было отрисовано
@@ -85,7 +85,12 @@ export default class PointPresenter {
     this.#replaceWaypointToForm();
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (point) => {
+    this.#handleDataChange(point);
     this.#replaceFormToWaypoint();
+  };
+
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
   };
 }

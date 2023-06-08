@@ -57,10 +57,10 @@ export default class MainPresenter {
     this.#renderBoard();
   }
 
-  #handlePointChange(updatedPoint) {
+  #handlePointChange = (updatedPoint) => {
     this.#points = updateItem(this.#points, updatedPoint);
     this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
-  }
+  };
 
   #renderSort() {
     render(this.#sortComponent, this.#tripEventsContainer);
@@ -69,9 +69,10 @@ export default class MainPresenter {
   #renderPoint(point) {
     const pointPresenter = new PointPresenter({
       pointsListContainer: this.#tripEventsListComponent.element,
+      onDataChange: this.#handlePointChange,
     });
 
-    pointPresenter.init(point, 1);
+    pointPresenter.init(point);
     this.#pointPresenter.set(point.id, pointPresenter);
   }
 
