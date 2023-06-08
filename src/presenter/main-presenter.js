@@ -30,6 +30,7 @@ export default class MainPresenter {
 
   #points = [];
   #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
+  #pointPresenter = new Map();
 
   constructor({
     tripEventsContainer,
@@ -65,6 +66,7 @@ export default class MainPresenter {
     });
 
     pointPresenter.init(point, 1);
+    this.#pointPresenter.set(point.id, pointPresenter);
   }
 
   #renderPoints(from, to) {
@@ -76,6 +78,12 @@ export default class MainPresenter {
   #renderPointsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
     this.#renderPoints(0, Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS));
+  }
+  
+  #clearPointsList() {
+    this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointPresenter.clear();
+    // this.#renderedPointsCount = INITIAL_COUNT_OF_POINTS;
   }
 
   #renderNoPoints() {
