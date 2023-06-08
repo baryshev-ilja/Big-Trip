@@ -6,10 +6,19 @@ const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.
 const getRandomPositiveInteger = (first, second) => {
   const lower = Math.ceil(Math.min(Math.abs(first), Math.abs(second)));
   const upper = Math.floor(Math.max(Math.abs(first), Math.abs(second)));
-  return Math.floor( lower + Math.random() * (upper - lower + 1));
+  return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
 // Функция для проверки клавиши Escape
 const getIsEscape = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
 
-export {getRandomPositiveInteger, getRandomArrayElement, getIsEscape};
+const updateItem = (items, update) => items
+  .map((item) => item.id === update.id ? update : item);
+
+
+export {
+  getRandomPositiveInteger,
+  getRandomArrayElement,
+  getIsEscape,
+  updateItem
+};

@@ -8,6 +8,7 @@ import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
+import {updateItem} from '../utils/common.js';
 
 const INITIAL_COUNT_OF_POINTS = 6;
 const POINT_COUNT_PER_STEP = 1;
@@ -56,6 +57,11 @@ export default class MainPresenter {
     this.#renderBoard();
   }
 
+  #handlePointChange(updatedPoint) {
+    this.#points = updateItem(this.#points, updatedPoint);
+    this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
+  }
+
   #renderSort() {
     render(this.#sortComponent, this.#tripEventsContainer);
   }
@@ -79,7 +85,7 @@ export default class MainPresenter {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
     this.#renderPoints(0, Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS));
   }
-  
+
   #clearPointsList() {
     this.#pointPresenter.forEach((presenter) => presenter.destroy());
     this.#pointPresenter.clear();
