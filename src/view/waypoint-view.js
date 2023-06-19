@@ -1,5 +1,8 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, DATE_FORMAT, TIME_FORMAT, hasOffers, differentDate} from '../utils/waypoint.js';
+import {createRandomWaypoint} from '../mock/waypoint-mock.js';
+
+const BLANK_POINT = createRandomWaypoint();
 
 function createWaypointTemplate(point) {
   const {basePrice, dateFrom, dateTo, destination, isFavorite, offers, type} = point;
@@ -71,7 +74,7 @@ export default class WaypointView extends AbstractView {
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({point, onEditClick, onFavoriteClick}) {
+  constructor({point = BLANK_POINT, onEditClick, onFavoriteClick}) {
     super();
     this.#point = point;
     this.#handleEditClick = onEditClick;

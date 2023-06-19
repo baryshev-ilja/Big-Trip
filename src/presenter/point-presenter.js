@@ -1,4 +1,4 @@
-import {render, replace, remove} from '../framework/render.js';
+import {render, replace, remove, RenderPosition} from '../framework/render.js';
 import WaypointView from '../view/waypoint-view.js';
 import EditFormView from '../view/edit-form-view.js';
 import {getIsEscape} from '../utils/common';
@@ -42,8 +42,6 @@ export default class PointPresenter {
       onFormSubmit: this.#handleFormSubmit,
     });
 
-    // console.log(`${count}-[2]`, 'prevWaypointComponent', prevWaypointComponent, 'this.#waypointComponent', this.#waypointComponent);
-
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
       render(this.#waypointComponent, this.#pointsListContainer);
       return;
@@ -59,8 +57,24 @@ export default class PointPresenter {
 
     remove(prevWaypointComponent);
     remove(prevWaypointEditComponent);
+  }
 
-    // console.log(`${count}-[3]`, 'prevWaypointComponent', prevWaypointComponent, 'this.#waypointComponent', this.#waypointComponent);
+  initNewEventForm(point) {
+    this.#point = point;
+
+    this.#waypointComponent = new WaypointView({
+      point: this.#point,
+      onEditClick: this.#handleEditClick,
+      onFavoriteClick: this.#handleFavoriteClick,
+    });
+
+    this.#waypointEditComponent = new EditFormView({
+      point: this.#point,
+      onFormSubmit: this.#handleFormSubmit,
+    });
+
+    render(this.#waypointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);
+    this.#replaceWaypointToForm();
   }
 
   resetMode() {

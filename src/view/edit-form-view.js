@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {createRandomWaypoint} from '../mock/waypoint-mock.js';
 import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/waypoint.js';
 import {Types} from '../const.js';
@@ -148,7 +148,7 @@ function createEditFormTemplate(data) {
               </form>`;
 }
 
-export default class EditFormView extends AbstractView {
+export default class EditFormView extends AbstractStatefulView {
   #point = null;
 
   // Сюда будет передаваться функция, которая будет вызываться в слушателе события
@@ -172,4 +172,11 @@ export default class EditFormView extends AbstractView {
     evt.preventDefault();
     this.#handleFormSubmit(this.#point);
   };
+
+  // static parsePointToState(point) {
+  //   return {
+  //     ...point,
+  //     isCheckedCity: isCheckedCity(this.element, )
+  //   };
+  // }
 }
