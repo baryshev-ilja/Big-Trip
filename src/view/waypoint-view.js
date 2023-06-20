@@ -2,10 +2,10 @@ import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, DATE_FORMAT, TIME_FORMAT, hasOffers, differentDate} from '../utils/waypoint.js';
 import {createRandomWaypoint} from '../mock/waypoint-mock.js';
 
-const BLANK_POINT = createRandomWaypoint();
+let BLANK_POINT = createRandomWaypoint();
 
 function createWaypointTemplate(point) {
-  const {basePrice, dateFrom, dateTo, destination, isFavorite, offers, type} = point;
+  const {basePrice, dateFrom, dateTo, destination, isFavorite, offers, type, city, cities} = point;
   const dateFromFormatted = humanizeDate(dateFrom, DATE_FORMAT);
   const timeFrom = humanizeDate(dateFrom, TIME_FORMAT);
   const timeTo = humanizeDate(dateTo, TIME_FORMAT);
@@ -38,7 +38,7 @@ function createWaypointTemplate(point) {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${type} ${destination.name}</h3>
+                <h3 class="event__title">${type} ${city}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
@@ -89,6 +89,11 @@ export default class WaypointView extends AbstractView {
 
   get template() {
     return createWaypointTemplate(this.#point);
+  }
+
+  getPointData() {
+    BLANK_POINT = createRandomWaypoint();
+    return BLANK_POINT;
   }
 
   // Функция-колбек, которая будет передаваться в слушатель события

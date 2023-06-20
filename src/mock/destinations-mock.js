@@ -23,14 +23,14 @@ const descriptionMock = [
 
 
 // Функция, которая генерирует случайное количество объектов с фотографиями
-const createPictureDescription = (a, b, city) => {
+const createPictureDescription = (a, b,) => {
   const arrayPictureObj = [];
   const amount = getRandomPositiveInteger(a, b);
 
   for (let i = 1; i < amount; i++) {
     const pictureObj = {
       'src': `https://loremflickr.com/248/152?random=${getRandomPositiveInteger(1, 234)}`,
-      'description': `${city} - ${getRandomArrayElement(descriptionMock).toLowerCase()}`,
+      'description': `${getRandomArrayElement(descriptionMock).toLowerCase()}`,
     };
     arrayPictureObj.push(pictureObj);
   }
@@ -40,11 +40,11 @@ const createPictureDescription = (a, b, city) => {
 
 
 // Функция, которая возвращает объект с описанием города и его фотографиями
-function createDestinationTemplate(city) {
+function createDestinationTemplate() {
   return {
     'description': createArrayOfElements(1, 5, descriptionMock).join(' '),
-    'name': city,
-    'pictures': createPictureDescription(1, 6, city),
+    // 'name': city,
+    'pictures': createPictureDescription(1, 6),
   };
 }
 

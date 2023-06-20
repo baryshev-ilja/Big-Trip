@@ -14,7 +14,7 @@ import {SortType} from '../const.js';
 import MenuPresenter from './menu-presenter.js';
 
 const INITIAL_COUNT_OF_POINTS = 1;
-const POINT_COUNT_PER_STEP = 1;
+// const POINT_COUNT_PER_STEP = 1;
 
 export default class GeneralPresenter {
 
@@ -63,7 +63,6 @@ export default class GeneralPresenter {
     // сохранив исходный массив:
     this.#sourcedPoints = [...this.#points];
     this.#renderBoard();
-    console.log(this.#menuPresenter);
 
   }
 
@@ -141,13 +140,12 @@ export default class GeneralPresenter {
 
   #renderPointsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
-    this.#renderPoints(0, Math.min(this.#points.length, this.#renderedPointsCount));
+    this.#renderPoints(0, Math.min(this.#points.length));
   }
 
   #clearPointsList() {
     this.#pointsPresenter.forEach((presenter) => presenter.destroy());
     this.#pointsPresenter.clear();
-    // this.#renderedPointsCount = INITIAL_COUNT_OF_POINTS;
   }
 
   #renderNoPoints() {
@@ -175,6 +173,11 @@ export default class GeneralPresenter {
     render(menuFilterComponent, this.#filtersContainer);
   }
 
+  #addNewPointToAllData(newPoint) {
+    this.#points.push(newPoint);
+    this.#sourcedPoints.push(newPoint);
+  }
+
   // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
   #handleNewEventButtonClick = () => {
     const pointPresenter = new PointPresenter({
@@ -183,16 +186,10 @@ export default class GeneralPresenter {
       onModeChange: this.#handleModeChange,
     });
 
-    const [point] = this.#points.slice(this.#renderedPointsCount, this.#renderedPointsCount + POINT_COUNT_PER_STEP);
-    this.#renderedPointsCount += POINT_COUNT_PER_STEP;
+    pointPresenter.initNewEventForm();
+    this.#pointsPresenter.set(pointPresenter.getIdNewPoint(), pointPresenter);
+    this.#addNewPointToAllData(pointPresenter.getDataNewPoint());
 
-    pointPresenter.initNewEventForm(point);
-    this.#pointsPresenter.set(point.id, pointPresenter);
-
-    // Проверка: индекс гипотетически следующего элемента больше ли последнего индекса? Если да, то кнопка блокируется
-    if (this.#renderedPointsCount > this.#points.length - 1) {
-      this.#menuPresenter.buttonDisable();
-    }
   };
 
   #renderBoard() {

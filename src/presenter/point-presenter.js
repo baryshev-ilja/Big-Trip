@@ -17,6 +17,7 @@ export default class PointPresenter {
   #waypointEditComponent = null;
 
   #point = null;
+  #newPointId = null;
   #mode = Mode.DEFAULT;
 
   constructor({pointsListContainer, onDataChange, onModeChange}) {
@@ -59,26 +60,51 @@ export default class PointPresenter {
     remove(prevWaypointEditComponent);
   }
 
-  initNewEventForm(point) {
-    this.#point = point;
+  initNewEventForm() {
 
+    // console.log(prevWaypointComponent);
+    // Создается новый компонент точки маршрута. Но в него не передаются данные. А это значит, что в него
+    // подставятся случайно сгенерированные данные (point = BLANK_POINT)
     this.#waypointComponent = new WaypointView({
-      point: this.#point,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
+    // А сюда записывается весь этот объект с данными, который был создан при создании экземпляра
+    // new WaypointView(). Он будет передаваться дальше, в компонент формы редактирования, как параметр point
+    const pointDataForForm = this.#waypointComponent.getPointData();
+    this.#point = pointDataForForm;
+
+    // Чтобы узнать id по которому запишется данный Presenter (для дальнейшей обработки, и перерисовки этой точки
+    // маршрута) в приватное поле класса записывается новый уникальный id, который генерируется при вызове данного
+    // метода
+    this.#newPointId = pointDataForForm.id;
+
+    // Тут создается новый компонент формы редактирования точки. И уже он будет перерисован на страницу, вместо
+    // обычной точки по умолчанию
     this.#waypointEditComponent = new EditFormView({
-      point: this.#point,
+      point: pointDataForForm,
       onFormSubmit: this.#handleFormSubmit,
     });
 
+
     render(this.#waypointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);
     this.#replaceWaypointToForm();
+
+    // console.log(prevWaypointComponent);
+  }
+
+  getDataNewPoint() {
+    return this.#point;
+  }
+
+  getIdNewPoint() {
+    return this.#newPointId;
   }
 
   resetMode() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#waypointEditComponent.reset(this.#point);
       this.#replaceFormToWaypoint();
     }
   }
@@ -92,6 +118,7 @@ export default class PointPresenter {
   #escKeyDownHandler = (evt) => {
     if (getIsEscape(evt)) {
       evt.preventDefault();
+      this.#waypointEditComponent.reset(this.#point);
       this.#replaceFormToWaypoint();
     }
   };

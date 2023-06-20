@@ -4,7 +4,7 @@ import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/w
 import {Types} from '../const.js';
 
 
-const BLANK_POINT = createRandomWaypoint();
+// const BLANK_POINT = createRandomWaypoint();
 const arrayWaypointTypes = Object.values(Types);
 
 
@@ -154,29 +154,46 @@ export default class EditFormView extends AbstractStatefulView {
   // Сюда будет передаваться функция, которая будет вызываться в слушателе события
   #handleFormSubmit = null;
 
-  constructor({point = BLANK_POINT, onFormSubmit}) {
+  constructor({point, onFormSubmit}) {
     super();
-    this.#point = point;
+    this._setState(EditFormView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
 
     // Навешиваем на форму (это и есть первый родительский элемент - form) слушатель события Submit
     this.element.addEventListener('submit', this.#formSubmitHandler);
+    // this.element.querySelector('#event-destination-1').addEventListener('change', this.#inputCityHandler);
   }
 
   get template() {
-    return createEditFormTemplate(this.#point);
+    return createEditFormTemplate(this._state);
   }
+
+  reset(point) {
+    this.updateElement(
+      EditFormView.parsePointToState(point)
+    );
+  }
+
+  // #inputCityHandler = (evt) => {
+  //   evt.preventDefault();
+  //   console.log('Событие сработало!');
+  //   console.log(evt.target.value ? 'true' : evt);
+  // }
 
   // Функция-колбек, которая будет передаваться в слушатель события
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this.#point);
+    this.#handleFormSubmit(EditFormView.parseStateToPoint(this._state));
   };
 
-  // static parsePointToState(point) {
-  //   return {
-  //     ...point,
-  //     isCheckedCity: isCheckedCity(this.element, )
-  //   };
-  // }
+  static parsePointToState(point) {
+    return {
+      ...point
+    };
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+    return point;
+  }
 }

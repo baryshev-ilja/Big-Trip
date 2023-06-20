@@ -38,7 +38,7 @@ function createRandomWaypoint() {
     basePrice: getRandomPositiveInteger(100, 467),
     dateFrom: dateFrom,
     dateTo: dateTo,
-    destination: createDestinationTemplate(city),
+    destination: createDestinationTemplate(),
     isFavorite: Boolean(getRandomPositiveInteger(0, 1)),
     offers: offersByType[typeInfo[1]],
     type: Types[typeInfo[0]],
