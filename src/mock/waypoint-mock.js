@@ -40,7 +40,7 @@ function createRandomWaypoint() {
     dateTo: dateTo,
     destination: createDestinationTemplate(),
     isFavorite: Boolean(getRandomPositiveInteger(0, 1)),
-    offers: offersByType[typeInfo[1]],
+    offers: offersByType,
     type: Types[typeInfo[0]],
     city,
     cities: CITIES,

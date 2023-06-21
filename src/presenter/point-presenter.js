@@ -60,6 +60,7 @@ export default class PointPresenter {
     remove(prevWaypointEditComponent);
   }
 
+
   initNewEventForm() {
 
     // console.log(prevWaypointComponent);
@@ -90,17 +91,18 @@ export default class PointPresenter {
 
     render(this.#waypointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);
     this.#replaceWaypointToForm();
-
-    // console.log(prevWaypointComponent);
   }
+
 
   getDataNewPoint() {
     return this.#point;
   }
 
+
   getIdNewPoint() {
     return this.#newPointId;
   }
+
 
   resetMode() {
     if (this.#mode !== Mode.DEFAULT) {
@@ -109,10 +111,12 @@ export default class PointPresenter {
     }
   }
 
+
   destroy() {
     remove(this.#waypointComponent);
     remove(this.#waypointEditComponent);
   }
+
 
   // Функция-обработчик нажатия клавиши Escape
   #escKeyDownHandler = (evt) => {
@@ -122,6 +126,7 @@ export default class PointPresenter {
       this.#replaceFormToWaypoint();
     }
   };
+
 
   // Метод, который переводит точку маршрута в режим редактирования (открывается форма редактирования)
   #replaceWaypointToForm() {
@@ -139,14 +144,17 @@ export default class PointPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
+
   #handleEditClick = () => {
     this.#replaceWaypointToForm();
   };
+
 
   #handleFormSubmit = (point) => {
     this.#handleDataChange(point);
     this.#replaceFormToWaypoint();
   };
+
 
   #handleFavoriteClick = () => {
     this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});

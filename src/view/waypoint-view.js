@@ -29,7 +29,7 @@ function createWaypointTemplate(point) {
 
 
   // Записывает в переменную результат выполнения предыдущей функции. Затем вставляется в разметку как шаблон
-  const offersCheckedTemplate = createOffersCheckedTemplate(offers);
+  const offersCheckedTemplate = createOffersCheckedTemplate(offers[type]);
 
 
   return `<li class="trip-events__item">
@@ -51,7 +51,7 @@ function createWaypointTemplate(point) {
                   &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
                 </p>
 
-                ${hasOffers(offers) ? `<h4 class="visually-hidden">Offers:</h4>
+                ${hasOffers(offers[type]) ? `<h4 class="visually-hidden">Offers:</h4>
                   <ul class="event__selected-offers">${offersCheckedTemplate}</ul>` : ''}
 
                 <button class="${favoriteClassName}" type="button">
@@ -87,20 +87,23 @@ export default class WaypointView extends AbstractView {
       .addEventListener('click', this.#favoriteClickHandler);
   }
 
+
   get template() {
     return createWaypointTemplate(this.#point);
   }
+
 
   getPointData() {
     BLANK_POINT = createRandomWaypoint();
     return BLANK_POINT;
   }
 
-  // Функция-колбек, которая будет передаваться в слушатель события
+
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleEditClick();
   };
+
 
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
