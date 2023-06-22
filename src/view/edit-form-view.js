@@ -1,6 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/waypoint.js';
 import {Types} from '../const.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 const arrayWaypointTypes = Object.values(Types);
 
