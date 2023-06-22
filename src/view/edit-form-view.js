@@ -199,6 +199,8 @@ export default class EditFormView extends AbstractStatefulView {
 
   // Сюда будет передаваться функция, которая будет вызываться в слушателе события
   #handleFormSubmit = null;
+  #datepickerDateFrom = null;
+  #datepickerDateTo = null;
 
 
   constructor({point, onFormSubmit}) {
@@ -212,6 +214,20 @@ export default class EditFormView extends AbstractStatefulView {
 
   get template() {
     return createEditFormTemplate(this._state);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerDateFrom) {
+      this.#datepickerDateFrom.destroy();
+      this.#datepickerDateFrom = null;
+    }
+
+    if (this.#datepickerDateTo) {
+      this.#datepickerDateTo.destroy();
+      this.#datepickerDateTo = null;
+    }
   }
 
 
@@ -278,31 +294,19 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
 
-  #inputDateFromChangeHandler = (evt) => {
-    if (evt.target.value) {
-      this.updateElement({
-        dateFrom: evt.target.value,
-        isDateFrom: true,
-      });
-    } else {
-      this.updateElement({
-        isDateFrom: false,
-      });
-    }
+  #inputDateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+      isDateFrom: true,
+    });
   };
 
 
-  #inputDateToChangeHandler = (evt) => {
-    if (evt.target.value) {
-      this.updateElement({
-        dateTo: evt.target.value,
-        isDateTo: true,
-      });
-    } else {
-      this.updateElement({
-        isDateTo: false,
-      });
-    }
+  #inputDateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+      isDateTo: true,
+    });
   };
 
 
@@ -320,6 +324,28 @@ export default class EditFormView extends AbstractStatefulView {
       });
     }
   };
+
+  #setDatepickerDateFrom() {
+    this.#datepickerDateFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#inputDateFromChangeHandler,
+      },
+    );
+  }
+
+  #setDatepickerDateTo() {
+    this.#datepickerDateTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#inputDateFromChangeHandler,
+      },
+    );
+  }
 
 
   #formSubmitHandler = (evt) => {
