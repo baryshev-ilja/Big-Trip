@@ -27,7 +27,11 @@ function createEditFormTemplate(data) {
     newOffers,
   } = data;
 
-  const isSubmitDisabled = (isPrice === false);
+  const isPriceFalse = isPrice === false;
+  const isDateFromFalse = isDateFrom === false;
+  const isDateToFalse = isDateTo === false;
+
+  const isSubmitDisabled = (isPriceFalse || isDateFromFalse || isDateToFalse);
 
   // Функция, которая возвращает, заполненный данными, список типов точек маршрута. Затем результат функции
   // вставляется ниже, в разметку
@@ -249,6 +253,9 @@ export default class EditFormView extends AbstractStatefulView {
     if (this.element.querySelector('.event__available-offers')) {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerClickHandler);
     }
+
+    this.#setDatepickerDateFrom();
+    this.#setDatepickerDateTo();
   }
 
 
@@ -329,6 +336,7 @@ export default class EditFormView extends AbstractStatefulView {
     this.#datepickerDateFrom = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
+        enableTime: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
         onChange: this.#inputDateFromChangeHandler,
@@ -340,9 +348,10 @@ export default class EditFormView extends AbstractStatefulView {
     this.#datepickerDateTo = flatpickr(
       this.element.querySelector('#event-end-time-1'),
       {
+        enableTime: true,
         dateFormat: 'd/m/y H:i',
-        defaultDate: this._state.dateFrom,
-        onChange: this.#inputDateFromChangeHandler,
+        defaultDate: this._state.dateTo,
+        onChange: this.#inputDateToChangeHandler,
       },
     );
   }
