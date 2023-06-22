@@ -1,4 +1,4 @@
-import {render, replace, remove} from '../framework/render.js';
+import {render, replace, remove, RenderPosition} from '../framework/render.js';
 import WaypointView from '../view/waypoint-view.js';
 import EditFormView from '../view/edit-form-view.js';
 import {getIsEscape} from '../utils/common';
@@ -17,6 +17,7 @@ export default class PointPresenter {
   #waypointEditComponent = null;
 
   #point = null;
+  #newPointId = null;
   #mode = Mode.DEFAULT;
 
   constructor({pointsListContainer, onDataChange, onModeChange}) {
@@ -42,8 +43,6 @@ export default class PointPresenter {
       onFormSubmit: this.#handleFormSubmit,
     });
 
-    // console.log(`${count}-[2]`, 'prevWaypointComponent', prevWaypointComponent, 'this.#waypointComponent', this.#waypointComponent);
-
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
       render(this.#waypointComponent, this.#pointsListContainer);
       return;
@@ -59,28 +58,75 @@ export default class PointPresenter {
 
     remove(prevWaypointComponent);
     remove(prevWaypointEditComponent);
-
-    // console.log(`${count}-[3]`, 'prevWaypointComponent', prevWaypointComponent, 'this.#waypointComponent', this.#waypointComponent);
   }
+
+
+  initNewEventForm() {
+
+    // console.log(prevWaypointComponent);
+    // Создается новый компонент точки маршрута. Но в него не передаются данные. А это значит, что в него
+    // подставятся случайно сгенерированные данные (point = BLANK_POINT)
+    this.#waypointComponent = new WaypointView({
+      onEditClick: this.#handleEditClick,
+      onFavoriteClick: this.#handleFavoriteClick,
+    });
+
+    // А сюда записывается весь этот объект с данными, который был создан при создании экземпляра
+    // new WaypointView(). Он будет передаваться дальше, в компонент формы редактирования, как параметр point
+    const pointDataForForm = this.#waypointComponent.getPointData();
+    this.#point = pointDataForForm;
+
+    // Чтобы узнать id по которому запишется данный Presenter (для дальнейшей обработки, и перерисовки этой точки
+    // маршрута) в приватное поле класса записывается новый уникальный id, который генерируется при вызове данного
+    // метода
+    this.#newPointId = pointDataForForm.id;
+
+    // Тут создается новый компонент формы редактирования точки. И уже он будет перерисован на страницу, вместо
+    // обычной точки по умолчанию
+    this.#waypointEditComponent = new EditFormView({
+      point: pointDataForForm,
+      onFormSubmit: this.#handleFormSubmit,
+    });
+
+
+    render(this.#waypointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);
+    this.#replaceWaypointToForm();
+  }
+
+
+  getDataNewPoint() {
+    return this.#point;
+  }
+
+
+  getIdNewPoint() {
+    return this.#newPointId;
+  }
+
 
   resetMode() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#waypointEditComponent.reset(this.#point);
       this.#replaceFormToWaypoint();
     }
   }
+
 
   destroy() {
     remove(this.#waypointComponent);
     remove(this.#waypointEditComponent);
   }
 
+
   // Функция-обработчик нажатия клавиши Escape
   #escKeyDownHandler = (evt) => {
     if (getIsEscape(evt)) {
       evt.preventDefault();
+      this.#waypointEditComponent.reset(this.#point);
       this.#replaceFormToWaypoint();
     }
   };
+
 
   // Метод, который переводит точку маршрута в режим редактирования (открывается форма редактирования)
   #replaceWaypointToForm() {
@@ -98,14 +144,17 @@ export default class PointPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
+
   #handleEditClick = () => {
     this.#replaceWaypointToForm();
   };
+
 
   #handleFormSubmit = (point) => {
     this.#handleDataChange(point);
     this.#replaceFormToWaypoint();
   };
+
 
   #handleFavoriteClick = () => {
     this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});

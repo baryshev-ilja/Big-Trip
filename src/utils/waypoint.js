@@ -76,10 +76,14 @@ function differentDate(dateFrom, dateTo) {
   }
 }
 
+
+// Функция для сортировки по цене
 function sortPrice(pointA, pointB) {
   return pointB.basePrice - pointA.basePrice;
 }
 
+
+// Функция для сортировки по времени
 function sortTime(pointA, pointB) {
   const {dateFrom: dateFromA, dateTo: dateToA} = pointA;
   const {dateFrom: dateFromB, dateTo: dateToB} = pointB;
@@ -90,6 +94,8 @@ function sortTime(pointA, pointB) {
   return totalAmountOfTimeB - totalAmountOfTimeA;
 }
 
+
+// Функция для сортировки по дням
 function sortDay(pointA, pointB) {
   const {dateFrom: dateFromA} = pointA;
   const {dateFrom: dateFromB} = pointB;
@@ -108,5 +114,5 @@ export {
   differentDate,
   sortTime,
   sortPrice,
-  sortDay
+  sortDay,
 };

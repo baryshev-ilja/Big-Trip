@@ -9,8 +9,10 @@ const getRandomPositiveInteger = (first, second) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
+
 // Функция для проверки клавиши Escape
 const getIsEscape = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
+
 
 const updateItem = (items, update) => items
   .map((item) => item.id === update.id ? update : item);

@@ -11,14 +11,15 @@ import PointPresenter from './point-presenter.js';
 import {updateItem} from '../utils/common.js';
 import {sortDay, sortTime, sortPrice} from '../utils/waypoint.js';
 import {SortType} from '../const.js';
+import MenuPresenter from './menu-presenter.js';
 
-const INITIAL_COUNT_OF_POINTS = 6;
-const POINT_COUNT_PER_STEP = 1;
+const INITIAL_COUNT_OF_POINTS = 1;
+// const POINT_COUNT_PER_STEP = 1;
 
-export default class MainPresenter {
+export default class GeneralPresenter {
+
   #routeWrapperComponent = new RouteWrapperView();
   #tripEventsListComponent = new TripEventsListView();
-  #newEventButtonComponent = null;
   #tripEventsContainer = null;
   #routeContainer = null;
   #menuContainer = null;
@@ -33,9 +34,11 @@ export default class MainPresenter {
 
   #points = [];
   #renderedPointsCount = INITIAL_COUNT_OF_POINTS;
-  #pointPresenter = new Map();
-  #currentSortType = SortType.PRICE;
+  #pointsPresenter = new Map();
+  #currentSortType = SortType.DAY;
   #sourcedPoints = [];
+  #menuPresenter = null;
+
 
   constructor({
     tripEventsContainer,
@@ -43,7 +46,6 @@ export default class MainPresenter {
     menuContainer,
     filtersContainer,
     pointsModel,
-    newEventButton,
     filters
   }) {
     this.#tripEventsContainer = tripEventsContainer;
@@ -51,9 +53,7 @@ export default class MainPresenter {
     this.#menuContainer = menuContainer;
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
-    this.#newEventButtonComponent = newEventButton;
     this.#filters = filters;
-
   }
 
   init() {
@@ -63,16 +63,17 @@ export default class MainPresenter {
     // сохранив исходный массив:
     this.#sourcedPoints = [...this.#points];
     this.#renderBoard();
+
   }
 
   #handleModeChange = () => {
-    this.#pointPresenter.forEach((presenter) => presenter.resetMode());
+    this.#pointsPresenter.forEach((presenter) => presenter.resetMode());
   };
 
   #handlePointChange = (updatedPoint) => {
     this.#points = updateItem(this.#points, updatedPoint);
     this.#sourcedPoints = updateItem(this.#sourcedPoints, updatedPoint);
-    this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
+    this.#pointsPresenter.get(updatedPoint.id).init(updatedPoint);
   };
 
   #sortPoints(sortType) {
@@ -105,6 +106,14 @@ export default class MainPresenter {
     this.#renderPointsList();
   };
 
+  #renderNewEventButton() {
+    this.#menuPresenter = new MenuPresenter({
+      menuContainer: this.#routeContainer,
+      onNewEventButtonClick: this.#handleNewEventButtonClick
+    });
+    this.#menuPresenter.init();
+  }
+
   #renderSort() {
     this.#sortComponent = new SortingView({
       onSortTypeChange: this.#handleSortTypeChange
@@ -112,15 +121,15 @@ export default class MainPresenter {
     render(this.#sortComponent, this.#tripEventsContainer);
   }
 
-  #renderPoint(point) {
+  #renderPoint(point, form = false) {
     const pointPresenter = new PointPresenter({
       pointsListContainer: this.#tripEventsListComponent.element,
       onDataChange: this.#handlePointChange,
       onModeChange: this.#handleModeChange,
     });
 
-    pointPresenter.init(point);
-    this.#pointPresenter.set(point.id, pointPresenter);
+    pointPresenter.init(point, form);
+    this.#pointsPresenter.set(point.id, pointPresenter);
   }
 
   #renderPoints(from, to) {
@@ -131,13 +140,12 @@ export default class MainPresenter {
 
   #renderPointsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
-    this.#renderPoints(0, Math.min(this.#points.length, INITIAL_COUNT_OF_POINTS));
+    this.#renderPoints(0, Math.min(this.#points.length));
   }
 
   #clearPointsList() {
-    this.#pointPresenter.forEach((presenter) => presenter.destroy());
-    this.#pointPresenter.clear();
-    // this.#renderedPointsCount = INITIAL_COUNT_OF_POINTS;
+    this.#pointsPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointsPresenter.clear();
   }
 
   #renderNoPoints() {
@@ -165,14 +173,23 @@ export default class MainPresenter {
     render(menuFilterComponent, this.#filtersContainer);
   }
 
-  // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
-  #newEventButtonHandler = (evt) => {
-    evt.preventDefault();
-    this.#points
-      .slice(this.#renderedPointsCount, this.#renderedPointsCount + POINT_COUNT_PER_STEP)
-      .forEach((point) => this.#renderPoint(point));
+  #addNewPointToAllData(newPoint) {
+    this.#points.push(newPoint);
+    this.#sourcedPoints.push(newPoint);
+  }
 
-    this.#renderedPointsCount += POINT_COUNT_PER_STEP;
+  // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
+  #handleNewEventButtonClick = () => {
+    const pointPresenter = new PointPresenter({
+      pointsListContainer: this.#tripEventsListComponent.element,
+      onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange,
+    });
+
+    pointPresenter.initNewEventForm();
+    this.#pointsPresenter.set(pointPresenter.getIdNewPoint(), pointPresenter);
+    this.#addNewPointToAllData(pointPresenter.getDataNewPoint());
+
   };
 
   #renderBoard() {
@@ -181,6 +198,7 @@ export default class MainPresenter {
     this.#renderRouteCost();
     this.#renderMenuNav();
     this.#renderMenuFilters();
+    this.#renderNewEventButton();
 
     if (this.#points.length === 0) {
       this.#renderNoPoints();
@@ -189,7 +207,5 @@ export default class MainPresenter {
 
     this.#renderSort();
     this.#renderPointsList();
-
-    this.#newEventButtonComponent.addEventListener('click', this.#newEventButtonHandler);
   }
 }

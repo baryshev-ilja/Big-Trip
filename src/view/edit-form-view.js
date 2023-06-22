@@ -1,16 +1,37 @@
-import AbstractView from '../framework/view/abstract-view.js';
-import {createRandomWaypoint} from '../mock/waypoint-mock.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/waypoint.js';
 import {Types} from '../const.js';
+import flatpickr from 'flatpickr';
 
+import 'flatpickr/dist/flatpickr.min.css';
 
-const BLANK_POINT = createRandomWaypoint();
 const arrayWaypointTypes = Object.values(Types);
 
-
 function createEditFormTemplate(data) {
-  const {basePrice, dateFrom, dateTo, destination, offers, type, city, cities} = data;
+  const {
+    basePrice,
+    dateFrom,
+    dateTo,
+    destination,
+    offers,
+    type,
+    city,
+    cities,
+    isInputCityChecked,
+    prevCity,
+    isPrice,
+    isDateFrom,
+    isDateTo,
+    oldDateFrom,
+    oldDateTo,
+    newOffers,
+  } = data;
 
+  const isPriceFalse = isPrice === false;
+  const isDateFromFalse = isDateFrom === false;
+  const isDateToFalse = isDateTo === false;
+
+  const isSubmitDisabled = (isPriceFalse || isDateFromFalse || isDateToFalse);
 
   // Функция, которая возвращает, заполненный данными, список типов точек маршрута. Затем результат функции
   // вставляется ниже, в разметку
@@ -33,13 +54,14 @@ function createEditFormTemplate(data) {
   const showOffers = () => {
     let offersArray = '';
 
-    offers.forEach((item) => {
+    newOffers.forEach((item) => {
       offersArray += `
       <div class="event__offer-selector">
          <input class="event__offer-checkbox  visually-hidden"
          id="event-offer-${item.name}-${item.id}"
          type="checkbox"
          name="event-offer-${item.name}"
+         value="${item.name}"
          ${item.checked ? 'checked' : ''}>
          <label class="event__offer-label" for="event-offer-${item.name}-${item.id}">
             <span class="event__offer-title">${item.title}</span>
@@ -96,9 +118,16 @@ function createEditFormTemplate(data) {
 
                   <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${type[0].toUpperCase()}${type.slice(1)}
+                      ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" placeholder="${city}" value="" list="destination-list-1">
+                    <input
+                     class="event__input  event__input--destination"
+                     id="event-destination-1"
+                     type="text"
+                     name="event-destination"
+                     placeholder="${!isInputCityChecked ? `${prevCity}` : ''}"
+                     value="${isInputCityChecked ? `${city}` : ''}"
+                     list="destination-list-1">
                     <datalist id="destination-list-1">
                       ${returnCityValues(cities)}
                     </datalist>
@@ -106,10 +135,22 @@ function createEditFormTemplate(data) {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" placeholder="${humanizeDate(dateFrom, EDIT_DATE_FORMAT)} ${humanizeDate(dateFrom, TIME_FORMAT)}" value="">
+                    <input
+                     class="event__input  event__input--time"
+                     id="event-start-time-1"
+                     type="text"
+                     name="event-start-time"
+                     placeholder="${isDateFrom ? '' : `${humanizeDate(oldDateFrom, EDIT_DATE_FORMAT)} ${humanizeDate(oldDateFrom, TIME_FORMAT)}`}"
+                     value="${isDateFrom ? `${humanizeDate(dateFrom, EDIT_DATE_FORMAT)} ${humanizeDate(dateFrom, TIME_FORMAT)}` : ''}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" placeholder="${humanizeDate(dateTo, EDIT_DATE_FORMAT)} ${humanizeDate(dateTo, TIME_FORMAT)}" value="">
+                    <input
+                     class="event__input  event__input--time"
+                     id="event-end-time-1"
+                     type="text"
+                     name="event-end-time"
+                     placeholder="${isDateTo ? '' : `${humanizeDate(oldDateTo, EDIT_DATE_FORMAT)} ${humanizeDate(oldDateTo, TIME_FORMAT)}`}"
+                     value="${isDateTo ? `${humanizeDate(dateTo, EDIT_DATE_FORMAT)} ${humanizeDate(dateTo, TIME_FORMAT)}` : ''}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -117,15 +158,24 @@ function createEditFormTemplate(data) {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" placeholder="${basePrice}" value="">
+                    <input
+                     class="event__input  event__input--price"
+                     id="event-price-1"
+                     type="text"
+                     name="event-price"
+                     placeholder=""
+                     value="${isPrice ? `${basePrice}` : ''}">
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+                  <button
+                     class="event__save-btn  btn  btn--blue"
+                     type="submit"
+                     ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
                 </header>
                 <section class="event__details">
 
-                  ${hasOffers(offers) ? `<section class="event__section  event__section--offers">
+                  ${hasOffers(newOffers) ? `<section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                     <div class="event__available-offers">
@@ -133,9 +183,9 @@ function createEditFormTemplate(data) {
                     </div>
                   </section>` : ''}
 
-                  ${destination ? `<section class="event__section  event__section--destination">
+                  ${isInputCityChecked ? `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${destination.name} - ${destination.description.toLowerCase()}</p>
+                    <p class="event__destination-description">${city} - ${destination.description.toLowerCase()}</p>
 
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
@@ -148,28 +198,199 @@ function createEditFormTemplate(data) {
               </form>`;
 }
 
-export default class EditFormView extends AbstractView {
+export default class EditFormView extends AbstractStatefulView {
   #point = null;
 
   // Сюда будет передаваться функция, которая будет вызываться в слушателе события
   #handleFormSubmit = null;
+  #datepickerDateFrom = null;
+  #datepickerDateTo = null;
 
-  constructor({point = BLANK_POINT, onFormSubmit}) {
+
+  constructor({point, onFormSubmit}) {
     super();
-    this.#point = point;
+    this._setState(EditFormView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
 
-    // Навешиваем на форму (это и есть первый родительский элемент - form) слушатель события Submit
-    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this._restoreHandlers();
   }
+
 
   get template() {
-    return createEditFormTemplate(this.#point);
+    return createEditFormTemplate(this._state);
   }
 
-  // Функция-колбек, которая будет передаваться в слушатель события
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerDateFrom) {
+      this.#datepickerDateFrom.destroy();
+      this.#datepickerDateFrom = null;
+    }
+
+    if (this.#datepickerDateTo) {
+      this.#datepickerDateTo.destroy();
+      this.#datepickerDateTo = null;
+    }
+  }
+
+
+  reset(point) {
+    this.updateElement(
+      EditFormView.parsePointToState(point)
+    );
+  }
+
+
+  _restoreHandlers() {
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('#event-destination-1').addEventListener('change', this.#inputCityChangeHandler);
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#inputTypeChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#inputPriceChangeHandler);
+    this.element.querySelector('#event-start-time-1').addEventListener('change', this.#inputDateFromChangeHandler);
+    this.element.querySelector('#event-end-time-1').addEventListener('change', this.#inputDateToChangeHandler);
+
+    if (this.element.querySelector('.event__available-offers')) {
+      this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerClickHandler);
+    }
+
+    this.#setDatepickerDateFrom();
+    this.#setDatepickerDateTo();
+  }
+
+
+  #inputCityChangeHandler = (evt) => {
+    if (evt.target.value) {
+      this.updateElement({
+        isInputCityChecked: true,
+        city: evt.target.value,
+      });
+    } else {
+      this.updateElement({
+        isInputCityChecked: false,
+      });
+    }
+  };
+
+
+  #inputTypeChangeHandler = (evt) => {
+    if (evt.target.className === 'event__type-input  visually-hidden') {
+      const isChecked = this.element.querySelector('#event-type-toggle-1').checked;
+      this.element.querySelector('#event-type-toggle-1').checked = !isChecked;
+
+      this.updateElement({
+        type: evt.target.value,
+        newOffers: this._state.offers[evt.target.value],
+      });
+
+    }
+  };
+
+
+  #inputPriceChangeHandler = (evt) => {
+    if (evt.target.value) {
+      this.updateElement({
+        basePrice: evt.target.value,
+        isPrice: true,
+      });
+    } else {
+      this.updateElement({
+        isPrice: false,
+      });
+    }
+  };
+
+
+  #inputDateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+      isDateFrom: true,
+    });
+  };
+
+
+  #inputDateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+      isDateTo: true,
+    });
+  };
+
+
+  #offerClickHandler = (evt) => {
+    if (evt.target.className === 'event__offer-checkbox  visually-hidden') {
+
+      const updateOffers = (checked, value) => {
+        const isDesiredItem = this._state.newOffers.find((item) => item.name === value);
+        isDesiredItem.checked = checked;
+        return this._state.newOffers.map((item) => item.name === value ? isDesiredItem : item);
+      };
+
+      this.updateElement({
+        newOffers: [...updateOffers(evt.target.checked, evt.target.value)]
+      });
+    }
+  };
+
+  #setDatepickerDateFrom() {
+    this.#datepickerDateFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#inputDateFromChangeHandler,
+      },
+    );
+  }
+
+  #setDatepickerDateTo() {
+    this.#datepickerDateTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateTo,
+        onChange: this.#inputDateToChangeHandler,
+      },
+    );
+  }
+
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this.#point);
+    this.#handleFormSubmit(EditFormView.parseStateToPoint(this._state));
   };
+
+
+  static parsePointToState(point) {
+    return {
+      ...point,
+      isInputCityChecked: false,
+      prevCity: point.city,
+      isDateFrom: false,
+      isDateTo: false,
+      isPrice: false,
+      oldDateFrom: point.dateFrom,
+      oldDateTo: point.dateTo,
+      newOffers: point.offers[point.type],
+    };
+  }
+
+  static parseStateToPoint(state) {
+    const point = {
+      ...state
+    };
+
+    delete point.isInputCityChecked;
+    delete point.prevCity;
+    delete point.isDateFrom;
+    delete point.isDateTo;
+    delete point.isPrice;
+    delete point.oldDateFrom;
+    delete point.oldDateTo;
+    delete point.newOffers;
+
+    return point;
+  }
 }
