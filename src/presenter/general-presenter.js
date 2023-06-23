@@ -9,7 +9,7 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
 import {sortTime, sortPrice} from '../utils/waypoint.js';
-import {SortType} from '../const.js';
+import {SortType, UserAction, UpdateType} from '../const.js';
 import MenuPresenter from './menu-presenter.js';
 
 export default class GeneralPresenter {
@@ -71,19 +71,34 @@ export default class GeneralPresenter {
   };
 
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE_POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.ADD_POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+      case UserAction.DELETE_POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+    }
   };
 
-  #handleModelEvent(updateType, update) {
-    console.log(updateType, update);
+  #handleModelEvent(updateType, data) {
+    console.log(updateType, data);
     // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // Обновить часть списка (например, когда поменялось описание)
+        this.#pointsPresenter.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        // Обновить список (например, когда точка маршрута удалилась)
+        break;
+      case UpdateType.MAJOR:
+        // Обновить свю доску (например, при переключении фильтра)
+        break;
+    }
   }
 
   #handleSortTypeChange = (sortType) => {
