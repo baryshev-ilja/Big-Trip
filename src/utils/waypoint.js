@@ -4,7 +4,7 @@ dayjs.extend(isSameOrAfter);
 
 
 const DATE_FORMAT = 'MMM D';
-const TIME_FORMAT = 'HH:MM';
+const TIME_FORMAT = 'HH:mm';
 const EDIT_DATE_FORMAT = 'DD/MM/YY';
 
 

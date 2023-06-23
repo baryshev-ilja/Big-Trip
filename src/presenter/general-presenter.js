@@ -63,7 +63,10 @@ export default class GeneralPresenter {
     // сохранив исходный массив:
     this.#sourcedPoints = [...this.#points];
     this.#renderBoard();
+  }
 
+  get points() {
+    return this.#pointsModel.points;
   }
 
   #handleModeChange = () => {

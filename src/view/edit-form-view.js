@@ -306,6 +306,7 @@ export default class EditFormView extends AbstractStatefulView {
       dateFrom: userDate,
       isDateFrom: true,
     });
+    console.log(this._state.dateFrom);
   };
 
 
