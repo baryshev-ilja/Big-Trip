@@ -9,7 +9,6 @@ function createWaypointTemplate(point) {
   const dateFromFormatted = humanizeDate(dateFrom, DATE_FORMAT);
   const timeFrom = humanizeDate(dateFrom, TIME_FORMAT);
   const timeTo = humanizeDate(dateTo, TIME_FORMAT);
-  console.log(humanizeDate(dateFrom, TIME_FORMAT));
 
   const favoriteClassName = isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
@@ -86,7 +85,6 @@ export default class WaypointView extends AbstractView {
       .addEventListener('click', this.#editClickHandler);
     this.element.querySelector('.event__favorite-btn')
       .addEventListener('click', this.#favoriteClickHandler);
-    console.log(this.#point.dateFrom);
   }
 
 
