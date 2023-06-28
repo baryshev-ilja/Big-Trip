@@ -42,6 +42,7 @@ export default class PointPresenter {
     this.#waypointEditComponent = new EditFormView({
       point: this.#point,
       onFormSubmit: this.#handleFormSubmit,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
@@ -95,9 +96,9 @@ export default class PointPresenter {
   }
 
 
-  getDataNewPoint() {
-    return this.#point;
-  }
+  // getDataNewPoint() {
+  //   return this.#point;
+  // }
 
 
   getIdNewPoint() {
@@ -151,11 +152,17 @@ export default class PointPresenter {
   };
 
 
-  #handleFormSubmit = (point) => {
+  #handleFormSubmit = (update) => {
+    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
+    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
+    const isMinorUpdate =
+      this.#point.dateFrom !== update.dateFrom ||
+      this.#point.dateTo !== update.dateTo;
+
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
-      point,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
     );
     this.#replaceFormToWaypoint();
   };
@@ -166,6 +173,14 @@ export default class PointPresenter {
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       {...this.#point, isFavorite: !this.#point.isFavorite},
+    );
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
     );
   };
 }

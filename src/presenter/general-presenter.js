@@ -143,17 +143,6 @@ export default class GeneralPresenter {
     points.forEach((point) => this.#renderPoint(point));
   }
 
-  #renderPointsList() {
-    const points = this.points;
-    render(this.#tripEventsListComponent, this.#tripEventsContainer);
-    this.#renderPoints(points);
-  }
-
-  #clearPointsList() {
-    this.#pointsPresenter.forEach((presenter) => presenter.destroy());
-    this.#pointsPresenter.clear();
-  }
-
   #renderNoPoints() {
     render(this.#noPointsComponent, this.#tripEventsContainer);
   }

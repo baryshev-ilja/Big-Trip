@@ -203,14 +203,16 @@ export default class EditFormView extends AbstractStatefulView {
 
   // Сюда будет передаваться функция, которая будет вызываться в слушателе события
   #handleFormSubmit = null;
+  #handleDeleteClick = null;
   #datepickerDateFrom = null;
   #datepickerDateTo = null;
 
 
-  constructor({point, onFormSubmit}) {
+  constructor({point, onFormSubmit, onDeleteClick}) {
     super();
     this._setState(EditFormView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -249,6 +251,7 @@ export default class EditFormView extends AbstractStatefulView {
     this.element.querySelector('.event__input--price').addEventListener('change', this.#inputPriceChangeHandler);
     this.element.querySelector('#event-start-time-1').addEventListener('change', this.#inputDateFromChangeHandler);
     this.element.querySelector('#event-end-time-1').addEventListener('change', this.#inputDateToChangeHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
 
     if (this.element.querySelector('.event__available-offers')) {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerClickHandler);
@@ -361,6 +364,11 @@ export default class EditFormView extends AbstractStatefulView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditFormView.parseStateToPoint(this._state));
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditFormView.parseStateToPoint(this._state));
   };
 
 
