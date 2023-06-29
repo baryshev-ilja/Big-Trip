@@ -12,6 +12,14 @@ import {sortTime, sortPrice, sortDay} from '../utils/waypoint.js';
 import {SortType, UserAction, UpdateType} from '../const.js';
 import MenuPresenter from './menu-presenter.js';
 
+const filters = [
+  {
+    type: 'past',
+    name: 'past',
+    count: 0,
+  },
+];
+
 export default class GeneralPresenter {
 
   #routeWrapperComponent = new RouteWrapperView();
@@ -21,7 +29,6 @@ export default class GeneralPresenter {
   #menuContainer = null;
   #filtersContainer = null;
   #pointsModel = null;
-  #filters = null;
   #sortComponent = null;
   #noPointsComponent = new NoPointsView();
   #routeInfoComponent = new RouteInfoView();
@@ -39,14 +46,12 @@ export default class GeneralPresenter {
     menuContainer,
     filtersContainer,
     pointsModel,
-    filters
   }) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#routeContainer = routeContainer;
     this.#menuContainer = menuContainer;
     this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
-    this.#filters = filters;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
@@ -164,7 +169,11 @@ export default class GeneralPresenter {
   }
 
   #renderMenuFilters() {
-    const menuFilterComponent = new FiltersView(this.#filters);
+    const menuFilterComponent = new FiltersView({
+      filters,
+      currentFilterType: 'past',
+      onFilterTypeChange: () => {}
+    });
     render(menuFilterComponent, this.#filtersContainer);
   }
 
