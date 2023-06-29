@@ -1,5 +1,6 @@
 import GeneralPresenter from './presenter/general-presenter.js';
 import PointsModel from './model/points-model.js';
+import FilterModel from './model/filter-model.js';
 import {generateFilter} from './mock/filter.js';
 
 const siteMainElement = document.querySelector('.page-body');
@@ -9,6 +10,7 @@ const siteHeaderFiltersElement = siteHeaderMenuElement.querySelector('.trip-cont
 const siteEventsContainerElement = siteMainElement.querySelector('.trip-events');
 
 const pointsModel = new PointsModel();
+const filterModel = new FilterModel();
 
 const filters = generateFilter(pointsModel.points);
 
