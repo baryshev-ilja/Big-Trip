@@ -1,12 +1,11 @@
-import {render, remove, RenderPosition} from '../framework/render.js';
+import {render, remove} from '../framework/render.js';
 import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
-import MenuPresenter from './menu-presenter.js';
 import {sortTime, sortPrice, sortDay} from '../utils/waypoint.js';
 import {filter} from '../utils/filter.js';
-import {SortType, UserAction, UpdateType} from '../const.js';
+import {SortType, UserAction, UpdateType, FilterType} from '../const.js';
 
 export default class GeneralPresenter {
 
@@ -15,12 +14,12 @@ export default class GeneralPresenter {
   #pointsModel = null;
   #filterModel = null;
   #sortComponent = null;
-  #noPointsComponent = new NoPointsView();
+  #noPointsComponent = null;
 
 
   #pointsPresenter = new Map();
   #currentSortType = SortType.DAY;
-  #menuPresenter = null;
+  #filterType = FilterType.EVERYTHING;
 
   constructor({
     tripEventsContainer,
@@ -40,9 +39,9 @@ export default class GeneralPresenter {
   }
 
   get points() {
-    const filterType = this.#filterModel.filter;
+    this.#filterType = this.#filterModel.filter;
     const points = this.#pointsModel.points;
-    const filteredPoints = filter[filterType](points);
+    const filteredPoints = filter[this.#filterType](points);
 
     switch (this.#currentSortType) {
       case SortType.TIME:
@@ -132,6 +131,9 @@ export default class GeneralPresenter {
   }
 
   #renderNoPoints() {
+    this.#noPointsComponent = new NoPointsView({
+      filterType: this.#filterType
+    });
     render(this.#noPointsComponent, this.#tripEventsContainer);
   }
 
@@ -153,7 +155,10 @@ export default class GeneralPresenter {
     this.#pointsPresenter.clear();
 
     remove(this.#sortComponent);
-    remove(this.#noPointsComponent);
+
+    if (this.#noPointsComponent) {
+      remove(this.#noPointsComponent);
+    }
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
