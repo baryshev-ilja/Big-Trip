@@ -1,59 +1,38 @@
 import {render, remove, RenderPosition} from '../framework/render.js';
-import FiltersView from '../view/filters-view.js';
-import MenuNavView from '../view/menu-nav-view.js';
-import RouteWrapperView from '../view/route-wrapper-view.js';
-import RouteInfoView from '../view/route-info-view.js';
-import RouteCostView from '../view/route-cost-view.js';
 import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
-import {sortTime, sortPrice, sortDay} from '../utils/waypoint.js';
-import {SortType, UserAction, UpdateType} from '../const.js';
 import MenuPresenter from './menu-presenter.js';
-
-const filters = [
-  {
-    type: 'past',
-    name: 'past',
-    count: 0,
-  },
-];
+import {sortTime, sortPrice, sortDay} from '../utils/waypoint.js';
+import {filter} from '../utils/filter.js';
+import {SortType, UserAction, UpdateType} from '../const.js';
 
 export default class GeneralPresenter {
 
-  #routeWrapperComponent = new RouteWrapperView();
   #tripEventsListComponent = new TripEventsListView();
   #tripEventsContainer = null;
-  #routeContainer = null;
-  #menuContainer = null;
-  #filtersContainer = null;
   #pointsModel = null;
+  #filterModel = null;
   #sortComponent = null;
   #noPointsComponent = new NoPointsView();
-  #routeInfoComponent = new RouteInfoView();
-  #routeCostComponent = new RouteCostView();
-  #menuNavComponent = new MenuNavView();
+
 
   #pointsPresenter = new Map();
   #currentSortType = SortType.DAY;
   #menuPresenter = null;
 
-
   constructor({
     tripEventsContainer,
-    routeContainer,
-    menuContainer,
-    filtersContainer,
     pointsModel,
+    filterModel,
   }) {
     this.#tripEventsContainer = tripEventsContainer;
-    this.#routeContainer = routeContainer;
-    this.#menuContainer = menuContainer;
-    this.#filtersContainer = filtersContainer;
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
@@ -61,16 +40,20 @@ export default class GeneralPresenter {
   }
 
   get points() {
+    const filterType = this.#filterModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[filterType](points);
+
     switch (this.#currentSortType) {
       case SortType.TIME:
-        return [...this.#pointsModel.points].sort(sortTime);
+        return filteredPoints.sort(sortTime);
       case SortType.PRICE:
-        return [...this.#pointsModel.points].sort(sortPrice);
+        return filteredPoints.sort(sortPrice);
       case SortType.DAY:
-        return [...this.#pointsModel.points].sort(sortDay);
+        return filteredPoints.sort(sortDay);
     }
 
-    return this.#pointsModel.points;
+    return filteredPoints;
   }
 
   #handleModeChange = () => {
@@ -117,13 +100,13 @@ export default class GeneralPresenter {
     this.#rerenderBoard();
   };
 
-  #renderNewEventButton() {
-    this.#menuPresenter = new MenuPresenter({
-      menuContainer: this.#routeContainer,
-      onNewEventButtonClick: this.#handleNewEventButtonClick
-    });
-    this.#menuPresenter.init();
-  }
+  // #renderNewEventButton() {
+  //   this.#menuPresenter = new MenuPresenter({
+  //     menuContainer: this.#routeContainer,
+  //     onNewEventButtonClick: this.#handleNewEventButtonClick
+  //   });
+  //   this.#menuPresenter.init();
+  // }
 
   #renderSort() {
     this.#sortComponent = new SortingView({
@@ -150,31 +133,6 @@ export default class GeneralPresenter {
 
   #renderNoPoints() {
     render(this.#noPointsComponent, this.#tripEventsContainer);
-  }
-
-  #renderRouteWrapper() {
-    render(this.#routeWrapperComponent, this.#routeContainer, RenderPosition.AFTERBEGIN);
-  }
-
-  #renderRouteInfo() {
-    render(this.#routeInfoComponent, this.#routeWrapperComponent.element);
-  }
-
-  #renderRouteCost() {
-    render(this.#routeCostComponent, this.#routeWrapperComponent.element);
-  }
-
-  #renderMenuNav() {
-    render(this.#menuNavComponent, this.#menuContainer);
-  }
-
-  #renderMenuFilters() {
-    const menuFilterComponent = new FiltersView({
-      filters,
-      currentFilterType: 'past',
-      onFilterTypeChange: () => {}
-    });
-    render(menuFilterComponent, this.#filtersContainer);
   }
 
   // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
@@ -206,12 +164,7 @@ export default class GeneralPresenter {
     const points = this.points;
     const pointsCount = this.points.length;
 
-    this.#renderRouteWrapper();
-    this.#renderRouteInfo();
-    this.#renderRouteCost();
-    this.#renderMenuNav();
-    this.#renderMenuFilters();
-    this.#renderNewEventButton();
+    // this.#renderNewEventButton();
 
     if (pointsCount === 0) {
       this.#renderNoPoints();

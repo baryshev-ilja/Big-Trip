@@ -27,11 +27,11 @@ function createEditFormTemplate(data) {
     newOffers,
   } = data;
 
-  const isPriceFalse = isPrice === false;
-  const isDateFromFalse = isDateFrom === false;
-  const isDateToFalse = isDateTo === false;
+  // const isPriceFalse = isPrice === false;
+  // const isDateFromFalse = isDateFrom === false;
+  // const isDateToFalse = isDateTo === false;
 
-  const isSubmitDisabled = (isPriceFalse || isDateFromFalse || isDateToFalse);
+  // const isSubmitDisabled = (isPriceFalse || isDateFromFalse || isDateToFalse);
 
   // Функция, которая возвращает, заполненный данными, список типов точек маршрута. Затем результат функции
   // вставляется ниже, в разметку
@@ -169,8 +169,7 @@ function createEditFormTemplate(data) {
 
                   <button
                      class="event__save-btn  btn  btn--blue"
-                     type="submit"
-                     ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
+                     type="submit">Save</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
                 </header>
                 <section class="event__details">
@@ -309,7 +308,6 @@ export default class EditFormView extends AbstractStatefulView {
       dateFrom: userDate,
       isDateFrom: true,
     });
-    console.log(this._state.dateFrom);
   };
 
 
