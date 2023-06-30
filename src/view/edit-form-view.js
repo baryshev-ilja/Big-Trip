@@ -2,6 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/waypoint.js';
 import {Types} from '../const.js';
 import flatpickr from 'flatpickr';
+import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -126,7 +127,7 @@ function createEditFormTemplate(data) {
                      type="text"
                      name="event-destination"
                      placeholder="${!isInputCityChecked ? `${prevCity}` : ''}"
-                     value="${isInputCityChecked ? `${city}` : ''}"
+                     value="${isInputCityChecked ? `${he.encode(city)}` : ''}"
                      list="destination-list-1">
                     <datalist id="destination-list-1">
                       ${returnCityValues(cities)}
@@ -184,7 +185,7 @@ function createEditFormTemplate(data) {
 
                   ${isInputCityChecked ? `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${city} - ${destination.description.toLowerCase()}</p>
+                    <p class="event__destination-description">${he.encode(city)} - ${destination.description.toLowerCase()}</p>
 
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
@@ -205,6 +206,7 @@ export default class EditFormView extends AbstractStatefulView {
   #handleDeleteClick = null;
   #datepickerDateFrom = null;
   #datepickerDateTo = null;
+  #invalidSymbols = /[^0-9]/g;
 
 
   constructor({point, onFormSubmit, onDeleteClick}) {
@@ -247,6 +249,7 @@ export default class EditFormView extends AbstractStatefulView {
     this.element.addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#inputCityChangeHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#inputTypeChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#inputPriceInputHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#inputPriceChangeHandler);
     this.element.querySelector('#event-start-time-1').addEventListener('change', this.#inputDateFromChangeHandler);
     this.element.querySelector('#event-end-time-1').addEventListener('change', this.#inputDateToChangeHandler);
@@ -286,6 +289,12 @@ export default class EditFormView extends AbstractStatefulView {
       });
 
     }
+  };
+
+
+  #inputPriceInputHandler = (evt) => {
+    evt.target.value = evt.target.value.replace(this.#invalidSymbols, '');
+    he.encode(evt.target.value);
   };
 
 
