@@ -13,14 +13,8 @@ const getRandomPositiveInteger = (first, second) => {
 // Функция для проверки клавиши Escape
 const getIsEscape = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
 
-
-const updateItem = (items, update) => items
-  .map((item) => item.id === update.id ? update : item);
-
-
 export {
   getRandomPositiveInteger,
   getRandomArrayElement,
-  getIsEscape,
-  updateItem
+  getIsEscape
 };

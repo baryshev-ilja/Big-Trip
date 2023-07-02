@@ -1,11 +1,15 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/waypoint.js';
+import {createRandomWaypoint} from '../mock/waypoint-mock';
 import {Types} from '../const.js';
 import flatpickr from 'flatpickr';
+import he from 'he';
+import {nanoid} from 'nanoid';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
 const arrayWaypointTypes = Object.values(Types);
+const BLANK_POINT = createRandomWaypoint();
 
 function createEditFormTemplate(data) {
   const {
@@ -27,11 +31,11 @@ function createEditFormTemplate(data) {
     newOffers,
   } = data;
 
-  const isPriceFalse = isPrice === false;
-  const isDateFromFalse = isDateFrom === false;
-  const isDateToFalse = isDateTo === false;
+  // const isPriceFalse = isPrice === false;
+  // const isDateFromFalse = isDateFrom === false;
+  // const isDateToFalse = isDateTo === false;
 
-  const isSubmitDisabled = (isPriceFalse || isDateFromFalse || isDateToFalse);
+  // const isSubmitDisabled = (isPriceFalse || isDateFromFalse || isDateToFalse);
 
   // Функция, которая возвращает, заполненный данными, список типов точек маршрута. Затем результат функции
   // вставляется ниже, в разметку
@@ -126,7 +130,7 @@ function createEditFormTemplate(data) {
                      type="text"
                      name="event-destination"
                      placeholder="${!isInputCityChecked ? `${prevCity}` : ''}"
-                     value="${isInputCityChecked ? `${city}` : ''}"
+                     value="${isInputCityChecked ? `${he.encode(city)}` : ''}"
                      list="destination-list-1">
                     <datalist id="destination-list-1">
                       ${returnCityValues(cities)}
@@ -169,8 +173,7 @@ function createEditFormTemplate(data) {
 
                   <button
                      class="event__save-btn  btn  btn--blue"
-                     type="submit"
-                     ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
+                     type="submit">Save</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
                 </header>
                 <section class="event__details">
@@ -185,7 +188,7 @@ function createEditFormTemplate(data) {
 
                   ${isInputCityChecked ? `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${city} - ${destination.description.toLowerCase()}</p>
+                    <p class="event__destination-description">${he.encode(city)} - ${destination.description.toLowerCase()}</p>
 
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
@@ -199,18 +202,21 @@ function createEditFormTemplate(data) {
 }
 
 export default class EditFormView extends AbstractStatefulView {
-  #point = null;
-
-  // Сюда будет передаваться функция, которая будет вызываться в слушателе события
+  // Сюда будут передаваться функции, которые будут вызываться в слушателе события
   #handleFormSubmit = null;
+  #handleDeleteClick = null;
   #datepickerDateFrom = null;
   #datepickerDateTo = null;
+  #invalidSymbols = /[^0-9]/g;
+  #isNewPoint = null;
 
 
-  constructor({point, onFormSubmit}) {
+  constructor({point = BLANK_POINT, onFormSubmit, onDeleteClick, isNewPoint}) {
     super();
     this._setState(EditFormView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
+    this.#isNewPoint = isNewPoint;
 
     this._restoreHandlers();
   }
@@ -246,9 +252,11 @@ export default class EditFormView extends AbstractStatefulView {
     this.element.addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#inputCityChangeHandler);
     this.element.querySelector('.event__type-group').addEventListener('click', this.#inputTypeChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#inputPriceInputHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#inputPriceChangeHandler);
     this.element.querySelector('#event-start-time-1').addEventListener('change', this.#inputDateFromChangeHandler);
     this.element.querySelector('#event-end-time-1').addEventListener('change', this.#inputDateToChangeHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
 
     if (this.element.querySelector('.event__available-offers')) {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerClickHandler);
@@ -284,6 +292,12 @@ export default class EditFormView extends AbstractStatefulView {
       });
 
     }
+  };
+
+
+  #inputPriceInputHandler = (evt) => {
+    evt.target.value = evt.target.value.replace(this.#invalidSymbols, '');
+    he.encode(evt.target.value);
   };
 
 
@@ -359,7 +373,12 @@ export default class EditFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditFormView.parseStateToPoint(this._state));
+    this.#handleFormSubmit(EditFormView.parseStateToPoint(this._state, this.#isNewPoint));
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditFormView.parseStateToPoint(this._state));
   };
 
 
@@ -377,10 +396,10 @@ export default class EditFormView extends AbstractStatefulView {
     };
   }
 
-  static parseStateToPoint(state) {
-    const point = {
-      ...state
-    };
+  static parseStateToPoint(state, isNew) {
+    const point = isNew ?
+      {...state, id: nanoid()} :
+      {...state};
 
     delete point.isInputCityChecked;
     delete point.prevCity;
