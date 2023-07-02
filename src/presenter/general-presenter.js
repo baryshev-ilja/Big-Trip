@@ -3,6 +3,7 @@ import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
+import NewPointPresenter from './new-point-presenter.js';
 import {sortTime, sortPrice, sortDay} from '../utils/waypoint.js';
 import {filter} from '../utils/filter.js';
 import {SortType, UserAction, UpdateType, FilterType} from '../const.js';
@@ -18,24 +19,30 @@ export default class GeneralPresenter {
 
 
   #pointsPresenter = new Map();
+  #newPointPresenter = null;
   #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERYTHING;
+  #newPointDestroy = null;
 
   constructor({
     tripEventsContainer,
     pointsModel,
     filterModel,
+    onNewPointDestroy
   }) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
+    this.#newPointDestroy = onNewPointDestroy;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
-  }
 
-  init() {
-    this.#renderBoard();
+    this.#newPointPresenter = new NewPointPresenter({
+      pointListContainer: this.#tripEventsListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: this.#newPointDestroy
+    });
   }
 
   get points() {
@@ -55,7 +62,18 @@ export default class GeneralPresenter {
     return filteredPoints;
   }
 
+  init() {
+    this.#renderBoard();
+  }
+
+  createPoint() {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newPointPresenter.init();
+  }
+
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#pointsPresenter.forEach((presenter) => presenter.resetMode());
   };
 
@@ -99,13 +117,6 @@ export default class GeneralPresenter {
     this.#rerenderBoard();
   };
 
-  // #renderNewEventButton() {
-  //   this.#menuPresenter = new MenuPresenter({
-  //     menuContainer: this.#routeContainer,
-  //     onNewEventButtonClick: this.#handleNewEventButtonClick
-  //   });
-  //   this.#menuPresenter.init();
-  // }
 
   #renderSort() {
     this.#sortComponent = new SortingView({
@@ -137,20 +148,8 @@ export default class GeneralPresenter {
     render(this.#noPointsComponent, this.#tripEventsContainer);
   }
 
-  // Функция-обработчик нажатия на кнопку New event. Добавляет новую точку маршрута из массива с данными
-  #handleNewEventButtonClick = () => {
-    const pointPresenter = new PointPresenter({
-      pointsListContainer: this.#tripEventsListComponent.element,
-      onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange,
-    });
-
-    pointPresenter.initNewEventForm();
-    this.#pointsPresenter.set(pointPresenter.getIdNewPoint(), pointPresenter);
-
-  };
-
   #clearBoard({resetSortType = false} = {}) {
+    this.#newPointPresenter.destroy();
     this.#pointsPresenter.forEach((presenter) => presenter.destroy());
     this.#pointsPresenter.clear();
 
@@ -168,8 +167,6 @@ export default class GeneralPresenter {
   #renderBoard() {
     const points = this.points;
     const pointsCount = this.points.length;
-
-    // this.#renderNewEventButton();
 
     if (pointsCount === 0) {
       this.#renderNoPoints();

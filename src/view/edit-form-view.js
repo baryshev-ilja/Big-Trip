@@ -1,12 +1,15 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {humanizeDate, EDIT_DATE_FORMAT, TIME_FORMAT, hasOffers} from '../utils/waypoint.js';
+import {createRandomWaypoint} from '../mock/waypoint-mock';
 import {Types} from '../const.js';
 import flatpickr from 'flatpickr';
 import he from 'he';
+import {nanoid} from 'nanoid';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
 const arrayWaypointTypes = Object.values(Types);
+const BLANK_POINT = createRandomWaypoint();
 
 function createEditFormTemplate(data) {
   const {
@@ -199,21 +202,21 @@ function createEditFormTemplate(data) {
 }
 
 export default class EditFormView extends AbstractStatefulView {
-  #point = null;
-
-  // Сюда будет передаваться функция, которая будет вызываться в слушателе события
+  // Сюда будут передаваться функции, которые будут вызываться в слушателе события
   #handleFormSubmit = null;
   #handleDeleteClick = null;
   #datepickerDateFrom = null;
   #datepickerDateTo = null;
   #invalidSymbols = /[^0-9]/g;
+  #isNewPoint = null;
 
 
-  constructor({point, onFormSubmit, onDeleteClick}) {
+  constructor({point = BLANK_POINT, onFormSubmit, onDeleteClick, isNewPoint}) {
     super();
     this._setState(EditFormView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
     this.#handleDeleteClick = onDeleteClick;
+    this.#isNewPoint = isNewPoint;
 
     this._restoreHandlers();
   }
@@ -370,7 +373,7 @@ export default class EditFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditFormView.parseStateToPoint(this._state));
+    this.#handleFormSubmit(EditFormView.parseStateToPoint(this._state, this.#isNewPoint));
   };
 
   #formDeleteClickHandler = (evt) => {
@@ -393,10 +396,10 @@ export default class EditFormView extends AbstractStatefulView {
     };
   }
 
-  static parseStateToPoint(state) {
-    const point = {
-      ...state
-    };
+  static parseStateToPoint(state, isNew) {
+    const point = isNew ?
+      {...state, id: nanoid()} :
+      {...state};
 
     delete point.isInputCityChecked;
     delete point.prevCity;

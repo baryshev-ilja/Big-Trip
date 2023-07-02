@@ -1,4 +1,4 @@
-import {render, replace, remove, RenderPosition} from '../framework/render.js';
+import {render, replace, remove} from '../framework/render.js';
 import WaypointView from '../view/waypoint-view.js';
 import EditFormView from '../view/edit-form-view.js';
 import {getIsEscape} from '../utils/common.js';
@@ -13,18 +13,19 @@ export default class PointPresenter {
   #pointsListContainer = null;
   #handleDataChange = null;
   #handleModeChange = null;
+  #handleDestroy = null;
 
   #waypointComponent = null;
   #waypointEditComponent = null;
 
   #point = null;
-  #newPointId = null;
   #mode = Mode.DEFAULT;
 
-  constructor({pointsListContainer, onDataChange, onModeChange}) {
+  constructor({pointsListContainer, onDataChange, onModeChange, onDestroy}) {
     this.#pointsListContainer = pointsListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
+    this.#handleDestroy = onDestroy;
   }
 
   init(point) {
@@ -43,6 +44,7 @@ export default class PointPresenter {
       point: this.#point,
       onFormSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
+      isNewPoint: false
     });
 
     if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
@@ -60,49 +62,6 @@ export default class PointPresenter {
 
     remove(prevWaypointComponent);
     remove(prevWaypointEditComponent);
-  }
-
-
-  initNewEventForm() {
-
-    // console.log(prevWaypointComponent);
-    // Создается новый компонент точки маршрута. Но в него не передаются данные. А это значит, что в него
-    // подставятся случайно сгенерированные данные (point = BLANK_POINT)
-    this.#waypointComponent = new WaypointView({
-      onEditClick: this.#handleEditClick,
-      onFavoriteClick: this.#handleFavoriteClick,
-    });
-
-    // А сюда записывается весь этот объект с данными, который был создан при создании экземпляра
-    // new WaypointView(). Он будет передаваться дальше, в компонент формы редактирования, как параметр point
-    const pointDataForForm = this.#waypointComponent.getPointData();
-    this.#point = pointDataForForm;
-
-    // Чтобы узнать id по которому запишется данный Presenter (для дальнейшей обработки, и перерисовки этой точки
-    // маршрута) в приватное поле класса записывается новый уникальный id, который генерируется при вызове данного
-    // метода
-    this.#newPointId = pointDataForForm.id;
-
-    // Тут создается новый компонент формы редактирования точки. И уже он будет перерисован на страницу, вместо
-    // обычной точки по умолчанию
-    this.#waypointEditComponent = new EditFormView({
-      point: pointDataForForm,
-      onFormSubmit: this.#handleFormSubmit,
-    });
-
-
-    render(this.#waypointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);
-    this.#replaceWaypointToForm();
-  }
-
-
-  // getDataNewPoint() {
-  //   return this.#point;
-  // }
-
-
-  getIdNewPoint() {
-    return this.#newPointId;
   }
 
 

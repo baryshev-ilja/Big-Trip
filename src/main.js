@@ -3,6 +3,8 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import MenuPresenter from './presenter/menu-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
+import NewEventButtonView from './view/new-event-button-view.js';
+import {render} from './framework/render.js';
 
 const siteMainElement = document.querySelector('.page-body');
 const siteHeaderMenuElement = siteMainElement.querySelector('.trip-main');
@@ -20,6 +22,7 @@ const generalPresenter = new GeneralPresenter({
   filtersContainer: siteHeaderFiltersElement,
   pointsModel,
   filterModel,
+  onNewPointDestroy: handleNewPointFormClose
 });
 
 const filterPresenter = new FilterPresenter({
@@ -33,6 +36,21 @@ const menuPresenter = new MenuPresenter({
   menuContainer: siteHeaderNavElement,
   filtersContainer: siteHeaderFiltersElement,
 });
+
+const newPointButtonComponent = new NewEventButtonView({
+  onButtonClick: handleNewPointButtonClick
+});
+
+function handleNewPointButtonClick() {
+  generalPresenter.createPoint();
+  newPointButtonComponent.element.disabled = true;
+}
+
+function handleNewPointFormClose() {
+  newPointButtonComponent.element.disabled = false;
+}
+
+render(newPointButtonComponent, siteHeaderMenuElement);
 
 generalPresenter.init();
 menuPresenter.init();
