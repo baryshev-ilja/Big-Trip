@@ -11,7 +11,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 const arrayWaypointTypes = Object.values(Types);
 const BLANK_POINT = createRandomWaypoint();
 
-function createEditFormTemplate(data) {
+function createEditFormTemplate(data, isNew) {
   const {
     basePrice,
     dateFrom,
@@ -174,7 +174,13 @@ function createEditFormTemplate(data) {
                   <button
                      class="event__save-btn  btn  btn--blue"
                      type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__reset-btn" type="reset">
+                  ${isNew ? 'Cancel' : 'Delete'}
+                  </button>
+
+                  ${!isNew ? `<button class="event__rollup-btn" type="button">
+                    <span class="visually-hidden">Open event</span>
+                    </button>` : ''}
                 </header>
                 <section class="event__details">
 
@@ -205,17 +211,19 @@ export default class EditFormView extends AbstractStatefulView {
   // Сюда будут передаваться функции, которые будут вызываться в слушателе события
   #handleFormSubmit = null;
   #handleDeleteClick = null;
+  #handleFormEditClick = null;
   #datepickerDateFrom = null;
   #datepickerDateTo = null;
   #invalidSymbols = /[^0-9]/g;
   #isNewPoint = null;
 
 
-  constructor({point = BLANK_POINT, onFormSubmit, onDeleteClick, isNewPoint}) {
+  constructor({point = BLANK_POINT, onFormSubmit, onDeleteClick, onFormEditClick, isNewPoint}) {
     super();
     this._setState(EditFormView.parsePointToState(point));
     this.#handleFormSubmit = onFormSubmit;
     this.#handleDeleteClick = onDeleteClick;
+    this.#handleFormEditClick = onFormEditClick;
     this.#isNewPoint = isNewPoint;
 
     this._restoreHandlers();
@@ -223,7 +231,7 @@ export default class EditFormView extends AbstractStatefulView {
 
 
   get template() {
-    return createEditFormTemplate(this._state);
+    return createEditFormTemplate(this._state, this.#isNewPoint);
   }
 
   removeElement() {
@@ -258,6 +266,10 @@ export default class EditFormView extends AbstractStatefulView {
     this.element.querySelector('#event-end-time-1').addEventListener('change', this.#inputDateToChangeHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
 
+    if (!this.#isNewPoint) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    }
+
     if (this.element.querySelector('.event__available-offers')) {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerClickHandler);
     }
@@ -265,6 +277,12 @@ export default class EditFormView extends AbstractStatefulView {
     this.#setDatepickerDateFrom();
     this.#setDatepickerDateTo();
   }
+
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormEditClick();
+  };
 
 
   #inputCityChangeHandler = (evt) => {
@@ -353,7 +371,7 @@ export default class EditFormView extends AbstractStatefulView {
         enableTime: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
-        onChange: this.#inputDateFromChangeHandler,
+        onClose: this.#inputDateFromChangeHandler,
       },
     );
   }
@@ -365,7 +383,7 @@ export default class EditFormView extends AbstractStatefulView {
         enableTime: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateTo,
-        onChange: this.#inputDateToChangeHandler,
+        onClose: this.#inputDateToChangeHandler,
       },
     );
   }

@@ -35,9 +35,6 @@ export default class GeneralPresenter {
     this.#filterModel = filterModel;
     this.#newPointDestroy = onNewPointDestroy;
 
-    this.#pointsModel.addObserver(this.#handleModelEvent);
-    this.#filterModel.addObserver(this.#handleModelEvent);
-
     this.#newPointPresenter = new NewPointPresenter({
       pointListContainer: this.#tripEventsListComponent.element,
       onDataChange: this.#handleViewAction,
@@ -63,7 +60,16 @@ export default class GeneralPresenter {
   }
 
   init() {
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
+
     this.#renderBoard();
+  }
+
+  destroy() {
+    this.#clearBoard({resetSortType: true});
+    this.#pointsModel.removeObserver(this.#handleModelEvent);
+    this.#filterModel.removeObserver(this.#handleModelEvent);
   }
 
   createPoint() {

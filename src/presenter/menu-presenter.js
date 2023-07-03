@@ -1,49 +1,41 @@
-import {render, RenderPosition} from '../framework/render.js';
+import {render, replace, remove} from '../framework/render.js';
 import MenuNavView from '../view/menu-nav-view.js';
-import RouteWrapperView from '../view/route-wrapper-view.js';
-import RouteInfoView from '../view/route-info-view.js';
-import RouteCostView from '../view/route-cost-view.js';
+import {MenuItem} from '../const.js';
 
 export default class MenuPresenter {
-  #routeWrapperComponent = new RouteWrapperView();
-  #routeInfoComponent = new RouteInfoView();
-  #routeCostComponent = new RouteCostView();
-  #menuNavComponent = new MenuNavView();
-
   #menuContainer = null;
-  #routeContainer = null;
-  #filtersContainer = null;
+  #menuNavComponent = null;
+  #currentMenu = MenuItem.TABLE;
+  #menuClickHandler = null;
 
-  constructor({
-    routeContainer,
-    menuContainer,
-    filtersContainer,
-  }) {
+  constructor({menuContainer}) {
     this.#menuContainer = menuContainer;
-    this.#routeContainer = routeContainer;
-    this.#filtersContainer = filtersContainer;
   }
 
-  init() {
-    this.#renderRouteWrapper();
-    this.#renderRouteInfo();
-    this.#renderRouteCost();
-    this.#renderMenuNav();
+  init(menuClickHandler) {
+    const prevMenuComponent = this.#menuNavComponent;
+
+    this.#menuNavComponent = new MenuNavView(this.#currentMenu);
+    this.#menuNavComponent.setMenuClickHandler(this.#handleMenuClick);
+    this.#menuClickHandler = menuClickHandler;
+
+    if (prevMenuComponent === null) {
+      render(this.#menuNavComponent, this.#menuContainer);
+      return;
+    }
+
+    replace(this.#menuNavComponent, prevMenuComponent);
+    remove(prevMenuComponent);
   }
 
-  #renderRouteWrapper() {
-    render(this.#routeWrapperComponent, this.#routeContainer, RenderPosition.AFTERBEGIN);
-  }
+  #handleMenuClick = (menuItem) => {
+    this.#currentMenu = menuItem;
+    this.#menuClickHandler(this.#currentMenu);
 
-  #renderRouteInfo() {
-    render(this.#routeInfoComponent, this.#routeWrapperComponent.element);
-  }
+    this.init(this.#menuClickHandler);
+  };
 
-  #renderRouteCost() {
-    render(this.#routeCostComponent, this.#routeWrapperComponent.element);
-  }
-
-  #renderMenuNav() {
-    render(this.#menuNavComponent, this.#menuContainer);
+  reset() {
+    this.#handleMenuClick(MenuItem.TABLE);
   }
 }

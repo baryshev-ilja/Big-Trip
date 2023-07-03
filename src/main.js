@@ -5,6 +5,7 @@ import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import NewEventButtonView from './view/new-event-button-view.js';
 import {render} from './framework/render.js';
+import {MenuItem} from './const.js';
 
 const siteMainElement = document.querySelector('.page-body');
 const siteHeaderMenuElement = siteMainElement.querySelector('.trip-main');
@@ -14,6 +15,8 @@ const siteEventsContainerElement = siteMainElement.querySelector('.trip-events')
 
 const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
+
+let statsComponent = null;
 
 const generalPresenter = new GeneralPresenter({
   tripEventsContainer: siteEventsContainerElement,
@@ -32,9 +35,7 @@ const filterPresenter = new FilterPresenter({
 });
 
 const menuPresenter = new MenuPresenter({
-  routeContainer: siteHeaderMenuElement,
   menuContainer: siteHeaderNavElement,
-  filtersContainer: siteHeaderFiltersElement,
 });
 
 const newPointButtonComponent = new NewEventButtonView({
@@ -50,8 +51,20 @@ function handleNewPointFormClose() {
   newPointButtonComponent.element.disabled = false;
 }
 
+const menuClickHandler = (menuItem) => {
+  switch (menuItem) {
+    case MenuItem.STATS:
+      generalPresenter.destroy();
+      break;
+    case MenuItem.TABLE:
+      generalPresenter.destroy();
+      generalPresenter.init();
+      break;
+  }
+};
+
 render(newPointButtonComponent, siteHeaderMenuElement);
 
 generalPresenter.init();
-menuPresenter.init();
 filterPresenter.init();
+menuPresenter.init(menuClickHandler);

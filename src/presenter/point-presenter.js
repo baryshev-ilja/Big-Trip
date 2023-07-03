@@ -36,7 +36,7 @@ export default class PointPresenter {
 
     this.#waypointComponent = new WaypointView({
       point: this.#point,
-      onEditClick: this.#handleEditClick,
+      onEditClick: this.#handleEditClickPoint,
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
@@ -44,6 +44,7 @@ export default class PointPresenter {
       point: this.#point,
       onFormSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
+      onFormEditClick: this.#handleFormEditClick,
       isNewPoint: false
     });
 
@@ -106,8 +107,14 @@ export default class PointPresenter {
   }
 
 
-  #handleEditClick = () => {
+  #handleEditClickPoint = () => {
     this.#replaceWaypointToForm();
+  };
+
+
+  #handleFormEditClick = () => {
+    this.#waypointEditComponent.reset(this.#point);
+    this.#replaceFormToWaypoint();
   };
 
 
