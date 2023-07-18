@@ -50,7 +50,7 @@ const sortMapByValueDown = (map) => new Map([...map.entries()].sort((a, b) => b[
 
 const getTotalPriceOfType = (points, type) => {
   const pointsByType = getPointsByType(points, type);
-  return pointsByType.reduce((initialPrice, currentPoint) => initialPrice + currentPoint.price, 0);
+  return pointsByType.reduce((initialPrice, currentPoint) => (initialPrice + currentPoint.basePrice), 0);
 };
 
 
@@ -79,6 +79,7 @@ const getPriceForAllTypes = (points) => {
   uniqueTypes.forEach((type) => priceForAllTypes
     .set(type, getTotalPriceOfType(points, type)));
 
+  // console.log(sortMapByValueDown(priceForAllTypes));
   return sortMapByValueDown(priceForAllTypes);
 };
 

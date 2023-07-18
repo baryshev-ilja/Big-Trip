@@ -4,8 +4,9 @@ import MenuPresenter from './presenter/menu-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import NewEventButtonView from './view/new-event-button-view.js';
-import {render} from './framework/render.js';
+import {render, remove} from './framework/render.js';
 import {MenuItem} from './const.js';
+import StatsView from './view/stats-view.js';
 
 const siteMainElement = document.querySelector('.page-body');
 const siteHeaderMenuElement = siteMainElement.querySelector('.trip-main');
@@ -55,10 +56,13 @@ const menuClickHandler = (menuItem) => {
   switch (menuItem) {
     case MenuItem.STATS:
       generalPresenter.destroy();
+      statsComponent = new StatsView(pointsModel.points);
+      render(statsComponent, siteEventsContainerElement);
       break;
     case MenuItem.TABLE:
       generalPresenter.destroy();
       generalPresenter.init();
+      remove(statsComponent);
       break;
   }
 };
