@@ -2,6 +2,7 @@ import {render, remove} from '../framework/render.js';
 import SortingView from '../view/sorting-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoPointsView from '../view/no-points-view.js';
+import LoadingView from '../view/loading-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import {sortTime, sortPrice, sortDay} from '../utils/waypoint.js';
@@ -11,6 +12,7 @@ import {SortType, UserAction, UpdateType, FilterType} from '../const.js';
 export default class GeneralPresenter {
 
   #tripEventsListComponent = new TripEventsListView();
+  #loadingComponent = new LoadingView();
   #tripEventsContainer = null;
   #pointsModel = null;
   #filterModel = null;
@@ -23,6 +25,7 @@ export default class GeneralPresenter {
   #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERYTHING;
   #newPointDestroy = null;
+  #isLoading = true;
 
   constructor({
     tripEventsContainer,
@@ -110,6 +113,11 @@ export default class GeneralPresenter {
         this.#clearBoard({resetSortType: true});
         this.#rerenderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   };
 
@@ -147,6 +155,10 @@ export default class GeneralPresenter {
     points.forEach((point) => this.#renderPoint(point));
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#tripEventsContainer);
+  }
+
   #renderNoPoints() {
     this.#noPointsComponent = new NoPointsView({
       filterType: this.#filterType
@@ -160,6 +172,7 @@ export default class GeneralPresenter {
     this.#pointsPresenter.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
 
     if (this.#noPointsComponent) {
       remove(this.#noPointsComponent);
@@ -173,6 +186,11 @@ export default class GeneralPresenter {
   #renderBoard() {
     const points = this.points;
     const pointsCount = this.points.length;
+
+    if(this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
 
     if (pointsCount === 0) {
       this.#renderNoPoints();
