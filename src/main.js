@@ -7,6 +7,10 @@ import NewEventButtonView from './view/new-event-button-view.js';
 import {render, remove} from './framework/render.js';
 import {MenuItem} from './const.js';
 import StatsView from './view/stats-view.js';
+import PointsApiService from './points-api-service.js';
+
+const AUTHORISATION = 'Basic 45h5hgk57dw0ght7450ekfe0';
+const END_POINT = 'https://16.ecmascript.pages.academy/big-trip';
 
 const siteMainElement = document.querySelector('.page-body');
 const siteHeaderMenuElement = siteMainElement.querySelector('.trip-main');
@@ -14,7 +18,9 @@ const siteHeaderNavElement = siteHeaderMenuElement.querySelector('.trip-controls
 const siteHeaderFiltersElement = siteHeaderMenuElement.querySelector('.trip-controls__filters');
 const siteEventsContainerElement = siteMainElement.querySelector('.trip-events');
 
-const pointsModel = new PointsModel();
+const pointsModel = new PointsModel({
+  pointsApiService: new PointsApiService(END_POINT, AUTHORISATION)
+});
 const filterModel = new FilterModel();
 
 let statsComponent = null;
