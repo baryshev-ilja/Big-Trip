@@ -73,9 +73,10 @@ const menuClickHandler = (menuItem) => {
   }
 };
 
-render(newPointButtonComponent, siteHeaderMenuElement);
-
 generalPresenter.init();
 filterPresenter.init();
 menuPresenter.init(menuClickHandler);
-pointsModel.init();
+pointsModel.init()
+  .finally(() => {
+    render(newPointButtonComponent, siteHeaderMenuElement);
+  });
