@@ -1,23 +1,29 @@
 import Observable from '../framework/observable.js';
-import {createRandomWaypoint} from '../mock/waypoint-mock.js';
+// import {createRandomWaypoint} from '../mock/waypoint-mock.js';
 
-const POINT_COUNT = 5;
+// const POINT_COUNT = 5;
 
 export default class PointsModel extends Observable {
   #pointsApiService = null;
-  #points = Array.from({length: POINT_COUNT}, createRandomWaypoint);
+  // #points = Array.from({length: POINT_COUNT}, createRandomWaypoint);
+  #points = [];
 
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-
-    this.#pointsApiService.points.then((points) => {
-      console.log(points.map(this.#adaptToClient));
-    });
   }
 
   get points() {
     return this.#points;
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch (err) {
+      this.#points = [];
+    }
   }
 
   updatePoint(updateType, update) {

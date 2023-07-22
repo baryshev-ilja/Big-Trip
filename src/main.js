@@ -78,3 +78,4 @@ render(newPointButtonComponent, siteHeaderMenuElement);
 generalPresenter.init();
 filterPresenter.init();
 menuPresenter.init(menuClickHandler);
+pointsModel.init();
