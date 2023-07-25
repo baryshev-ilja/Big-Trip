@@ -114,7 +114,7 @@ export default class PointView extends AbstractView {
   }
 
   get template() {
-    return createPointTemplate(this.#point);
+    return createPointTemplate(this.#point, this.#offersByType, this.#destinations);
   }
 
   #rollupButtonClickHandler = (evt) => {
