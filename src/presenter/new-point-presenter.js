@@ -1,47 +1,71 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
-import EditFormView from '../view/edit-form-view.js';
+import EditPointView from '../view/edit-point-view.js';
 import {UserAction, UpdateType} from '../const.js';
 
 export default class NewPointPresenter {
+  #pointsModel = null;
+
   #pointListContainer = null;
   #handleDataChange = null;
   #handleDestroy = null;
 
-  #waypointEditComponent = null;
+  #pointEditComponent = null;
 
-  constructor({pointListContainer, onDataChange, onDestroy}) {
+  constructor({pointsModel, pointListContainer, onDataChange, onDestroy}) {
+    this.#pointsModel = pointsModel;
+
     this.#pointListContainer = pointListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
   }
 
   init() {
-    if (this.#waypointEditComponent !== null) {
+    if (this.#pointEditComponent !== null) {
       return;
     }
 
-    this.#waypointEditComponent = new EditFormView({
+    this.#pointEditComponent = new EditPointView({
+      offersByType: this.#pointsModel.offers,
+      destinations: this.#pointsModel.destinations,
       onFormSubmit: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick,
-      isNewPoint: true
+      onResetButtonClick: this.#handleFormCancelButtonClick
     });
 
-    render(this.#waypointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
+    render(this.#pointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
 
     document.addEventListener('keydown', this.#escKeyDownHandler);
   }
 
   destroy() {
-    if (this.#waypointEditComponent === null) {
+    if (this.#pointEditComponent === null) {
       return;
     }
 
     this.#handleDestroy();
 
-    remove(this.#waypointEditComponent);
-    this.#waypointEditComponent = null;
+    remove(this.#pointEditComponent);
+    this.#pointEditComponent = null;
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
   }
 
   #handleFormSubmit = (point) => {
@@ -53,7 +77,7 @@ export default class NewPointPresenter {
     this.destroy();
   };
 
-  #handleDeleteClick = () => {
+  #handleFormCancelButtonClick = () => {
     this.destroy();
   };
 

@@ -1,6 +1,6 @@
+import PointView from '../view/point-view.js';
+import EditPointView from '../view/edit-point-view.js';
 import {render, replace, remove} from '../framework/render.js';
-import WaypointView from '../view/waypoint-view.js';
-import EditFormView from '../view/edit-form-view.js';
 import {getIsEscape} from '../utils/common.js';
 import {UserAction, UpdateType} from '../const.js';
 
@@ -10,136 +10,174 @@ const Mode = {
 };
 
 export default class PointPresenter {
+  #offers = null;
+  #destinations = null;
+
   #pointsListContainer = null;
   #handleDataChange = null;
   #handleModeChange = null;
-  #handleDestroy = null;
 
-  #waypointComponent = null;
-  #waypointEditComponent = null;
+  #pointComponent = null;
+  #pointEditComponent = null;
 
   #point = null;
   #mode = Mode.DEFAULT;
 
-  constructor({pointsListContainer, onDataChange, onModeChange, onDestroy}) {
+  constructor({offers, destinations, pointsListContainer, onDataChange, onModeChange}) {
+    this.#offers = offers;
+    this.#destinations = destinations;
+
     this.#pointsListContainer = pointsListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
-    this.#handleDestroy = onDestroy;
   }
 
   init(point) {
     this.#point = point;
 
-    const prevWaypointComponent = this.#waypointComponent;
-    const prevWaypointEditComponent = this.#waypointEditComponent;
+    const prevPointComponent = this.#pointComponent;
+    const prevPointEditComponent = this.#pointEditComponent;
 
-    this.#waypointComponent = new WaypointView({
+    this.#pointComponent = new PointView({
       point: this.#point,
-      onEditClick: this.#handleEditClick,
+      offersByType: this.#offers,
+      destinations: this.#destinations,
+      onRollupButtonClick: this.#handleRollupButtonClick,
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
-    this.#waypointEditComponent = new EditFormView({
+    this.#pointEditComponent = new EditPointView({
       point: this.#point,
-      onFormSubmit: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick,
-      isNewPoint: false
+      offersByType: this.#offers,
+      destinations: this.#destinations,
+      onFormSubmit: this.#handleEditFormSubmit,
+      onRollupButtonClick: this.#handleEditFormRollupButtonClick,
+      onResetButtonClick: this.#handleEditFormDeleteButtonClick
     });
 
-    if (prevWaypointComponent === null || prevWaypointEditComponent === null) {
-      render(this.#waypointComponent, this.#pointsListContainer);
+    if (prevPointComponent === null || prevPointEditComponent === null) {
+      render(this.#pointComponent, this.#pointsListContainer);
       return;
     }
 
     if (this.#mode === Mode.DEFAULT) {
-      replace(this.#waypointComponent, prevWaypointComponent);
+      replace(this.#pointComponent, prevPointComponent);
     }
 
-    if(this.#mode === Mode.EDITING) {
-      replace(this.#waypointEditComponent, prevWaypointEditComponent);
+    if (this.#mode === Mode.EDITING) {
+      replace(this.#pointEditComponent, prevPointEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
-    remove(prevWaypointComponent);
-    remove(prevWaypointEditComponent);
+    remove(prevPointComponent);
+    remove(prevPointEditComponent);
   }
-
-
-  resetMode() {
-    if (this.#mode !== Mode.DEFAULT) {
-      this.#waypointEditComponent.reset(this.#point);
-      this.#replaceFormToWaypoint();
-    }
-  }
-
 
   destroy() {
-    remove(this.#waypointComponent);
-    remove(this.#waypointEditComponent);
+    remove(this.#pointComponent);
+    remove(this.#pointEditComponent);
   }
 
-
-  // Функция-обработчик нажатия клавиши Escape
-  #escKeyDownHandler = (evt) => {
-    if (getIsEscape(evt)) {
-      evt.preventDefault();
-      this.#waypointEditComponent.reset(this.#point);
-      this.#replaceFormToWaypoint();
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
     }
-  };
+  }
 
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
+  }
 
   // Метод, который переводит точку маршрута в режим редактирования (открывается форма редактирования)
-  #replaceWaypointToForm() {
-    replace(this.#waypointEditComponent, this.#waypointComponent);
+  #replacePointToForm() {
+    replace(this.#pointEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
     this.#mode = Mode.EDITING;
   }
 
-
   // Метод, который переводит точку маршрута в режим редактирования (открывается форма редактирования)
-  #replaceFormToWaypoint() {
-    replace(this.#waypointComponent, this.#waypointEditComponent);
+  #replaceFormToPoint() {
+    replace(this.#pointComponent, this.#pointEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
 
-
-  #handleEditClick = () => {
-    this.#replaceWaypointToForm();
+  #handleRollupButtonClick = () => {
+    this.#replacePointToForm();
   };
 
 
-  #handleFormSubmit = (update) => {
-    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
-    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
-    const isMinorUpdate =
-      this.#point.dateFrom !== update.dateFrom ||
-      this.#point.dateTo !== update.dateTo;
+  #handleEditFormRollupButtonClick = () => {
+    this.#pointEditComponent.reset(this.#point);
+    this.#replaceFormToPoint();
+  };
 
+
+  #handleEditFormSubmit = (update) => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      UpdateType.MINOR,
       update,
     );
-    this.#replaceFormToWaypoint();
+  };
+
+
+  #handleEditFormDeleteButtonClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
   };
 
 
   #handleFavoriteClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {...this.#point, isFavorite: !this.#point.isFavorite},
     );
   };
 
-  #handleDeleteClick = (point) => {
-    this.#handleDataChange(
-      UserAction.DELETE_POINT,
-      UpdateType.MINOR,
-      point,
-    );
+  // Функция-обработчик нажатия клавиши Escape
+  #escKeyDownHandler = (evt) => {
+    if (getIsEscape(evt)) {
+      evt.preventDefault();
+      this.#pointEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
+    }
   };
 }

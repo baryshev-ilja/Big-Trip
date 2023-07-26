@@ -24,18 +24,15 @@ export default class FilterPresenter {
 
     return [
       {
-        type: FilterType.EVERYTHING,
-        name: 'everything',
+        name: FilterType.EVERYTHING,
         count: filter[FilterType.EVERYTHING](points).length,
       },
       {
-        type: FilterType.PAST,
-        name: 'past',
+        name: FilterType.PAST,
         count: filter[FilterType.PAST](points).length,
       },
       {
-        type: FilterType.FUTURE,
-        name: 'future',
+        name: FilterType.FUTURE,
         count: filter[FilterType.FUTURE](points).length,
       },
     ];
@@ -46,9 +43,9 @@ export default class FilterPresenter {
     const prevFilterComponent = this.#filterComponent;
 
     this.#filterComponent = new FiltersView({
-      filters,
+      filters: filters,
       currentFilterType: this.#filterModel.filter,
-      onFilterTypeChange: this.#handleFilterTypeChange
+      onFilterChange: this.#handleFilterTypeChange
     });
 
     if (prevFilterComponent === null) {

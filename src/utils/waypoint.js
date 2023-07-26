@@ -6,6 +6,8 @@ dayjs.extend(isSameOrAfter);
 const DATE_FORMAT = 'MMM D';
 const TIME_FORMAT = 'HH:mm';
 const EDIT_DATE_FORMAT = 'DD/MM/YY';
+const MILLISECONDS_AMOUNT_IN_HOUR = 3600000;
+const MILLISECONDS_AMOUNT_IN_DAY = 86400000;
 
 
 // Функция для конвертации времени в человеко-понятный формат
@@ -102,6 +104,15 @@ function sortDay(pointA, pointB) {
   return dayjs(dateFromA).diff(dayjs(dateFromB));
 }
 
+const PRICE_FIELD_PATTERN = /\D+/;
+
+const validatePriceField = (value) => {
+  if (PRICE_FIELD_PATTERN.test(value)) {
+    value = 0;
+  }
+  return +value;
+};
+
 
 export {
   humanizeDate,
@@ -110,9 +121,12 @@ export {
   DATE_FORMAT,
   EDIT_DATE_FORMAT,
   TIME_FORMAT,
+  MILLISECONDS_AMOUNT_IN_HOUR,
+  MILLISECONDS_AMOUNT_IN_DAY,
   hasOffers,
   differentDate,
   sortTime,
   sortPrice,
   sortDay,
+  validatePriceField
 };
