@@ -14,8 +14,8 @@ import AddNewPointButtonView from './view/add-new-point-button-view.js';
 import PointsApiService from './api/points-api-service.js';
 import UiBlocker from './framework/ui-blocker/ui-blocker';
 
-const AUTHORISATION = 'Basic 45h5hgk57dw0ght7450ekfe0';
-const END_POINT = 'https://19.ecmascript.pages.academy/big-trip';
+const AUTHORISATION = 'Basic G5flmyeZ9kxnckx26';
+const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
